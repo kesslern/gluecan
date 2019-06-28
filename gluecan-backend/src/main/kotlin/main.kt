@@ -30,7 +30,8 @@ fun main() {
 
     app.get("/api/pastes/:id") { ctx ->
         transaction {
-            val paste = PasteDBO.findById(ctx.pathParam(":id").toInt())?.toPaste()
+            val id = ctx.pathParam(":id").toInt()
+            val paste = PasteDBO.findById(id)?.toPaste()
 
             if (paste != null) {
                 ctx.json(paste)
@@ -41,12 +42,27 @@ fun main() {
         }
     }
 
-    app.post("/api/pastes") {
+    app.delete("/api/pastes/:id") { ctx ->
         transaction {
-            PastesTable.insert {
-                it[text] = "foobar"
+            val id = ctx.pathParam(":id").toInt()
+            val paste = PasteDBO.findById(id)
+
+            if (paste != null) {
+                paste.delete()
+                ctx.status(200)
+            } else {
+                ctx.status(410)
             }
         }
+    }
+
+    app.post("/api/pastes") { ctx ->
+        val id = transaction {
+            PastesTable.insert {
+                it[text] = ctx.body()
+            }[PastesTable.id]
+        }
+        ctx.result(id.value.toString())
     }
 
     app.start(8080)
