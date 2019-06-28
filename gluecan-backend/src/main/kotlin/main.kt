@@ -61,6 +61,7 @@ fun main() {
     app.post("/api/pastes") { ctx ->
         val id = transaction {
             PastesTable.insert {
+                it[language] = ctx.queryParam("lang")
                 it[text] = ctx.body()
             }[PastesTable.id]
         }
