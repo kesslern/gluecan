@@ -1,6 +1,7 @@
 package us.kesslern
 
 import io.javalin.Javalin
+import io.javalin.http.Context
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
@@ -24,7 +25,7 @@ fun main() {
 
     app.get("/api/pastes") {
         transaction {
-            it.json(PasteDBO.all().map(PasteDBO::toPaste))
+            it.dboToJson(PasteDBO.all())
         }
     }
 
@@ -35,7 +36,7 @@ fun main() {
 
             if (paste != null) {
                 paste.views++
-                ctx.json(paste.toPaste())
+                ctx.dboToJson(paste)
             } else {
                 ctx.status(410)
             }
@@ -82,13 +83,20 @@ object PastesTable : IntIdTable() {
     val text = text("text")
 }
 
-class PasteDBO(id: EntityID<Int>) : IntEntity(id) {
+interface DBOToData<T> {
+    fun toData(): T
+}
+
+class PasteDBO(id: EntityID<Int>) : IntEntity(id), DBOToData<Paste> {
     companion object : IntEntityClass<PasteDBO>(PastesTable)
 
     var views by PastesTable.views
     var language by PastesTable.language
     var text by PastesTable.text
+
+    override fun toData() = Paste(this.id.value, this.views, this.language, this.text)
 }
 
-fun PasteDBO.toPaste() = Paste(this.id.value, this.views, this.language, this.text)
+fun Context.dboToJson(it: DBOToData<*>) = this.json(it.toData()!!)
 
+fun Context.dboToJson(it: Iterable<DBOToData<*>>) = this.json(it.map { it.toData() })
