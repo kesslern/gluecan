@@ -1,0 +1,3 @@
+rootProject.name = 'gluecan'
+include 'gluecan-frontend'
+include 'gluecan-backend'
