@@ -31,10 +31,11 @@ fun main() {
     app.get("/api/pastes/:id") { ctx ->
         transaction {
             val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)?.toPaste()
+            val paste = PasteDBO.findById(id)
 
             if (paste != null) {
-                ctx.json(paste)
+                paste.views++
+                ctx.json(paste.toPaste())
             } else {
                 ctx.status(410)
             }
