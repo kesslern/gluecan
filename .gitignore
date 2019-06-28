@@ -3,3 +3,4 @@
 **/*.log
 **/build/
 !gradle-wrapper.jar
+gluecan-backend/gluecan
