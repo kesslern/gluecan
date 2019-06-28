@@ -8,41 +8,53 @@ import Typography from '@material-ui/core/Typography';
 
 function App() {
   const [pastes, setPastes] = useState(null)
-  const [password, setPassword] = useState('')
-
-  const formSubmit = useCallback((event) => {
-    event.preventDefault()
+  
+  const formSubmit = useCallback(password => {
     console.log("Submit " + password)
-  }, [password])
-
-  const updatePassword = useCallback(event => {
-    setPassword(event.target.value)
-  }, [setPassword])
+  }, [])
 
   return (
     <div className="App">
-      <CssBaseline/>
+      <CssBaseline />
       <Typography variant="h5" color="textSecondary">GlueCan Administration</Typography>
-      <Paper component={"form"} onSubmit={formSubmit}>
-        <TextField
-          id="password"
-          label="Password"
-          margin="normal"
-          variant="outlined"
-          type="password"
-          value={password}
-          onChange={updatePassword}
-        />
-        <Button variant="contained" color="primary">Go</Button>
-      </Paper>
+      <LoginForm onSubmit={formSubmit} />
       {pastes ? pastes.map(paste =>
         <div key={paste.id}>
           <div>{paste.id}</div>
           <div>{paste.text}</div>
         </div>
-      ) : <PasteLoader setPastes={setPastes}/> }
+      ) : <PasteLoader setPastes={setPastes} />}
     </div>
   );
+}
+
+function LoginForm({ onSubmit }) {
+
+  const [password, setPassword] = useState('')
+
+  const updatePassword = useCallback(event => {
+    setPassword(event.target.value)
+  }, [setPassword])
+
+  const handleSubmit = useCallback((event) => {
+    event.preventDefault()
+    onSubmit(password)
+  }, [onSubmit, password])
+
+  return (
+    <Paper component={"form"} onSubmit={handleSubmit}>
+      <TextField
+        id="password"
+        label="Password"
+        margin="normal"
+        variant="outlined"
+        type="password"
+        value={password}
+        onChange={updatePassword}
+      />
+      <Button variant="contained" color="primary">Go</Button>
+    </Paper>
+  )
 }
 
 function PasteLoader({ setPastes }) {
@@ -55,7 +67,7 @@ function PasteLoader({ setPastes }) {
         setPastes(it)
       })
       .catch(() => console.log("error"))
-    })
+  })
 
   return null
 }
