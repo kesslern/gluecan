@@ -7,6 +7,12 @@ application {
     mainClassName = "us.kesslern.MainKt"
     group = "us.kesslern"
     applicationName = "gluecan"
+
+    val pass = System.getProperty("gluecan.pass")
+    if (pass != null) {
+        applicationDefaultJvmArgs = listOf("-Dgluecan.pass=$pass")
+    }
+
 }
 
 dependencies {

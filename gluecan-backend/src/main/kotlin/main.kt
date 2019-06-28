@@ -7,25 +7,36 @@ import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 fun main() {
+    val adminPass = System.getProperty("gluecan.pass", "change_me")
     val database = "jdbc:sqlite:gluecan"
     val flyway = Flyway.configure().dataSource(database, "su", null).load()
     flyway.migrate()
     Database.connect(database, driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
+    fun Context.authenticate(body: () -> Unit) {
+        val authHeader = this.header("X-Auth")
+        if (authHeader == adminPass) {
+            body()
+        } else {
+            this.status(401)
+        }
+    }
+
     val app = Javalin.create { config ->
         config.addStaticFiles("/frontend")
         config.addSinglePageRoot("/", "/frontend/index.html")
     }
 
-    app.get("/api/hello") { it.result("Hello, world!") }
-
-    app.get("/api/pastes") {
-        transaction {
-            it.dboToJson(PasteDBO.all())
+    app.get("/api/pastes") { ctx ->
+        ctx.authenticate {
+            transaction {
+                ctx.dboToJson(PasteDBO.all())
+            }
         }
     }
 
@@ -45,27 +56,31 @@ fun main() {
     }
 
     app.delete("/api/pastes/:id") { ctx ->
-        transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
+        ctx.authenticate {
+            transaction {
+                val id = ctx.pathParam(":id").toInt()
+                val paste = PasteDBO.findById(id)
 
-            if (paste != null) {
-                paste.delete()
-                ctx.status(200)
-            } else {
-                ctx.status(410)
+                if (paste != null) {
+                    paste.delete()
+                    ctx.status(200)
+                } else {
+                    ctx.status(410)
+                }
             }
         }
     }
 
     app.post("/api/pastes") { ctx ->
-        val id = transaction {
-            PastesTable.insert {
-                it[language] = ctx.queryParam("lang")
-                it[text] = ctx.body()
-            }[PastesTable.id]
+        ctx.authenticate {
+            val id = transaction {
+                PastesTable.insert {
+                    it[language] = ctx.queryParam("lang")
+                    it[text] = ctx.body()
+                }[PastesTable.id]
+            }
+            ctx.result(id.value.toString())
         }
-        ctx.result(id.value.toString())
     }
 
     app.start(8080)
