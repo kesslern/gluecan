@@ -8,27 +8,24 @@ import Typography from '@material-ui/core/Typography';
 
 function App() {
   const [pastes, setPastes] = useState(null)
-  
-  const formSubmit = useCallback(password => {
-    console.log("Submit " + password)
-  }, [])
+  const [password, setPassword] = useState(null)
+  const [loginSuccess, setLoginSuccess] = useState('')
 
   return (
     <div className="App">
       <CssBaseline />
-      <Typography variant="h5" color="textSecondary">GlueCan Administration</Typography>
-      <LoginForm onSubmit={formSubmit} />
+      {!loginSuccess && <LoginForm onSubmit={setPassword} failure={loginSuccess === false} />}
       {pastes ? pastes.map(paste =>
         <div key={paste.id}>
           <div>{paste.id}</div>
           <div>{paste.text}</div>
         </div>
-      ) : <PasteLoader setPastes={setPastes} />}
+      ) : password && <PasteLoader setPastes={setPastes} password={password} setResult={setLoginSuccess} />}
     </div>
   );
 }
 
-function LoginForm({ onSubmit }) {
+function LoginForm({ onSubmit, failure }) {
 
   const [password, setPassword] = useState('')
 
@@ -42,31 +39,41 @@ function LoginForm({ onSubmit }) {
   }, [onSubmit, password])
 
   return (
-    <Paper component={"form"} onSubmit={handleSubmit}>
-      <TextField
-        id="password"
-        label="Password"
-        margin="normal"
-        variant="outlined"
-        type="password"
-        value={password}
-        onChange={updatePassword}
-      />
-      <Button variant="contained" color="primary">Go</Button>
-    </Paper>
+    <React.Fragment>
+      <Typography variant="h5" color="textSecondary">GlueCan Administration</Typography>
+      <Paper>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            id="password"
+            label="Password"
+            margin="normal"
+            variant="outlined"
+            type="password"
+            value={password}
+            onChange={updatePassword}
+          />
+          <Button variant="contained" color="primary">Go</Button>
+        </form>
+        {failure && <div>
+          Failed
+</div>}
+      </Paper>
+    </React.Fragment>
   )
 }
 
-function PasteLoader({ setPastes }) {
+function PasteLoader({ setPastes, password, setResult }) {
 
   useEffect(() => {
-    fetch('/api/pastes', { headers: { 'X-Auth': 'change_me' } })
+    fetch('/api/pastes', { headers: { 'X-Auth': password } })
       .then(it => it.json())
       .then(it => {
-        console.log(it)
+        setResult(true)
         setPastes(it)
       })
-      .catch(() => console.log("error"))
+      .catch(() => {
+        setResult(false)
+      })
   })
 
   return null
