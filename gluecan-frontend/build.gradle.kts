@@ -27,7 +27,7 @@ node {
 tasks {
     val jsBuild by registering(GradleBuild::class) {
         tasks = listOf("yarn_build")
-        inputs.files("src/")
+        inputs.files("src/", "public/")
         outputs.files("build/")
 
     }

@@ -40,6 +40,42 @@ fun main() {
         }
     }
 
+    fun template(paste: Paste) = """
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>GlueCan #${paste.id}</title>
+        <link rel="stylesheet" href="/solarized-dark.css">
+        <script src="/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <style>
+          html { box-sizing: border-box }
+          pre, body { margin: 0; padding: 0 }
+          code { box-sizing: border-box; min-height: 100vh; min-width: 100vw }
+        </style>
+        </head>
+        <body>
+        <pre><code${if (paste.language != null) " class=${paste.language}" else ""}>${paste.text}</pre></code>
+        </body>
+        </html>
+    """.trimIndent()
+
+    app.get("/view/:id") { ctx ->
+        val paste = transaction {
+            val id = ctx.pathParam(":id").toInt()
+            PasteDBO.findById(id)
+        }
+
+        if (paste == null) {
+            ctx.result("Not found")
+            ctx.status(410)
+        } else {
+            ctx.contentType("text/html")
+            ctx.result(template(paste.toData()))
+        }
+    }
+
     app.get("/api/pastes/:id") { ctx ->
         transaction {
             val id = ctx.pathParam(":id").toInt()
