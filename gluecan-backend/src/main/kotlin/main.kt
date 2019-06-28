@@ -49,7 +49,6 @@ fun main() {
         <script src="/highlight.pack.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
         <style>
-          html { box-sizing: border-box }
           pre, body { margin: 0; padding: 0 }
           code { box-sizing: border-box; min-height: 100vh; min-width: 100vw }
         </style>
