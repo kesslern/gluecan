@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Pastes({ pastes }) {
+export default function Pastes({ pastes, onDelete }) {
   const classes = useStyles()
 
   return pastes &&
@@ -28,7 +28,7 @@ export default function Pastes({ pastes }) {
             <IconButton component="a" edge="end" aria-label="View" target="_blank" href={`/view/${paste.id}`}>
               <EyeIcon />
             </IconButton>
-            <IconButton edge="end" aria-label="Delete">
+            <IconButton edge="end" aria-label="Delete" onClick={() => onDelete(paste.id)}>
               <DeleteIcon />
             </IconButton>
           </ListItemSecondaryAction>

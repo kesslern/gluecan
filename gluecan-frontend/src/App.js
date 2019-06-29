@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import './App.css'
 import LoginForm from './LoginForm'
@@ -12,6 +12,12 @@ function App() {
   const [password, setPassword] = useState(null)
   const [loginSuccess, setLoginSuccess] = useState('')
 
+  const handleDelete = useCallback(id => {
+      fetch(`/api/pastes/${id}`, { method: 'delete', headers: { 'X-Auth': password }})
+      const newPastes = pastes.filter(paste => paste.id !== id)
+      setPastes(newPastes)
+    }, [password, pastes, setPastes])
+
   return (
     <ThemeProvider theme={createMuiTheme()}>
     <div className="App">
@@ -24,7 +30,7 @@ function App() {
           password={password}
           setResult={setLoginSuccess}
         />}
-      <Pastes pastes={pastes} />
+      <Pastes pastes={pastes} onDelete={handleDelete} />
     </div>
     </ThemeProvider>
   );

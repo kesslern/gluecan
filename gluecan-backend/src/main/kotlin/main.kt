@@ -62,7 +62,11 @@ fun main() {
     app.get("/view/:id") { ctx ->
         val paste = transaction {
             val id = ctx.pathParam(":id").toInt()
-            PasteDBO.findById(id)
+            val paste = PasteDBO.findById(id)
+            paste?.let {
+                it.views++
+                it
+            }
         }
 
         if (paste == null) {
@@ -71,21 +75,6 @@ fun main() {
         } else {
             ctx.contentType("text/html")
             ctx.result(template(paste.toData()))
-        }
-    }
-
-    app.get("/api/pastes/:id") { ctx ->
-        transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
-
-            if (paste != null) {
-                paste.views++
-                ctx.dboToJson(paste)
-            } else {
-                ctx.status(410)
-            }
-
         }
     }
 
