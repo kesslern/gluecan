@@ -8,13 +8,16 @@
   width: 100%
 }
 
-form {
-  padding: 24px;
+form.MuiPaper-root {
+  padding: 8px 24px 0;
+  height: 120px;
   display: flex;
 }
 
 form > .MuiButton-root {
-  margin: 16px 0 8px 16px;
+  margin-top: 16px;
+  margin-left: 16px;
+  height: 56px;
 }
 
 h5.MuiTypography-h5 {

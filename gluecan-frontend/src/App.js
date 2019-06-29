@@ -41,8 +41,7 @@ function LoginForm({ onSubmit, failure }) {
   return (
     <React.Fragment>
       <Typography variant="h5" color="textSecondary">GlueCan Administration</Typography>
-      <Paper>
-        <form onSubmit={handleSubmit}>
+      <Paper component="form" onSubmit={handleSubmit}>
           <TextField
             id="password"
             label="Password"
@@ -51,12 +50,12 @@ function LoginForm({ onSubmit, failure }) {
             type="password"
             value={password}
             onChange={updatePassword}
+            error={failure}
+            helperText={
+              failure && "Login Failed"
+            }
           />
           <Button variant="contained" color="primary">Go</Button>
-        </form>
-        {failure && <div>
-          Failed
-</div>}
       </Paper>
     </React.Fragment>
   )
