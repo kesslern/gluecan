@@ -13,25 +13,25 @@ function App() {
   const [loginSuccess, setLoginSuccess] = useState('')
 
   const handleDelete = useCallback(id => {
-      fetch(`/api/pastes/${id}`, { method: 'delete', headers: { 'X-Auth': password }})
-      const newPastes = pastes.filter(paste => paste.id !== id)
-      setPastes(newPastes)
-    }, [password, pastes, setPastes])
+    fetch(`/api/pastes/${id}`, { method: 'delete', headers: { 'X-Auth': password } })
+    const newPastes = pastes.filter(paste => paste.id !== id)
+    setPastes(newPastes)
+  }, [password, pastes, setPastes])
 
   return (
     <ThemeProvider theme={createMuiTheme()}>
-    <div className="App">
-      <CssBaseline />
-      {!loginSuccess &&
-        <LoginForm onSubmit={setPassword} failure={loginSuccess === false} />}
-      {!pastes && password &&
-        <PastesLoader
-          setPastes={setPastes}
-          password={password}
-          setResult={setLoginSuccess}
-        />}
-      <Pastes pastes={pastes} onDelete={handleDelete} />
-    </div>
+      <div className="App">
+        <CssBaseline />
+        {!loginSuccess &&
+          <LoginForm onSubmit={setPassword} failure={loginSuccess === false} />}
+        {!pastes && password &&
+          <PastesLoader
+            setPastes={setPastes}
+            password={password}
+            setResult={setLoginSuccess}
+          />}
+        <Pastes pastes={pastes} onDelete={handleDelete} />
+      </div>
     </ThemeProvider>
   );
 }
