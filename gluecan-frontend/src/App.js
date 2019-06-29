@@ -14,15 +14,22 @@ function App() {
   return (
     <div className="App">
       <CssBaseline />
-      {!loginSuccess && <LoginForm onSubmit={setPassword} failure={loginSuccess === false} />}
-      {pastes ? pastes.map(paste =>
-        <div key={paste.id}>
-          <div>{paste.id}</div>
-          <div>{paste.text}</div>
-        </div>
-      ) : password && <PasteLoader setPastes={setPastes} password={password} setResult={setLoginSuccess} />}
+      {!loginSuccess &&
+        <LoginForm onSubmit={setPassword} failure={loginSuccess === false} />}
+      {!pastes && password &&
+        <PasteLoader setPastes={setPastes} password={password} setResult={setLoginSuccess} />}
+      <Pastes pastes={pastes} />
     </div>
   );
+}
+
+function Pastes({ pastes }) {
+  return pastes && pastes.map(paste =>
+    <div key={paste.id}>
+      <div>{paste.id}</div>
+      <div>{paste.text}</div>
+    </div>
+  )
 }
 
 function LoginForm({ onSubmit, failure }) {
@@ -42,20 +49,20 @@ function LoginForm({ onSubmit, failure }) {
     <React.Fragment>
       <Typography variant="h5" color="textSecondary">GlueCan Administration</Typography>
       <Paper component="form" onSubmit={handleSubmit}>
-          <TextField
-            id="password"
-            label="Password"
-            margin="normal"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={updatePassword}
-            error={failure}
-            helperText={
-              failure && "Login Failed"
-            }
-          />
-          <Button variant="contained" color="primary">Go</Button>
+        <TextField
+          id="password"
+          label="Password"
+          margin="normal"
+          variant="outlined"
+          type="password"
+          value={password}
+          onChange={updatePassword}
+          error={failure}
+          helperText={
+            failure && "Login Failed"
+          }
+        />
+        <Button variant="contained" color="primary">Go</Button>
       </Paper>
     </React.Fragment>
   )
