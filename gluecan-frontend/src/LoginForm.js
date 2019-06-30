@@ -6,9 +6,28 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { login } from './state/slices/auth'
 import { useSelector } from 'react-redux'
+import { makeStyles } from '@material-ui/styles'
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(2, 3, 0),
+    height: theme.spacing(15),
+    display: 'flex',
+    '& button': {
+      marginTop: theme.spacing(2),
+      marginLeft: theme.spacing(2),
+      height: theme.spacing(7),
+    },
+  },
+  heading: {
+    marginBottom: theme.spacing(1),
+  },
+}))
 
 export default function LoginForm() {
+  const classes = useStyles()
   const dispatch = useDispatch()
+
   const { failure } = useSelector(state => state.auth)
   const [password, setPassword] = useState('')
 
@@ -29,10 +48,14 @@ export default function LoginForm() {
 
   return (
     <React.Fragment>
-      <Typography variant="h5" color="textSecondary">
+      <Typography
+        variant="h5"
+        color="textSecondary"
+        className={classes.heading}
+      >
         GlueCan Administration
       </Typography>
-      <Paper component="form" onSubmit={handleSubmit}>
+      <Paper component="form" className={classes.root} onSubmit={handleSubmit}>
         <TextField
           id="password"
           label="Password"
