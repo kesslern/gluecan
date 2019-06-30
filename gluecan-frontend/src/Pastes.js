@@ -15,6 +15,7 @@ import { useCallback } from 'react'
 
 const useStyles = makeStyles(theme => ({
   root: {
+    marginTop: ({ routeId }) => (routeId ? 0 : theme.spacing(10)),
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
@@ -26,7 +27,8 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Pastes({ match }) {
-  const classes = useStyles()
+  const routeId = parseInt(match.params.id) || null
+  const classes = useStyles({ routeId })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
 
@@ -41,8 +43,6 @@ export default function Pastes({ match }) {
   const back = useCallback(() => {
     dispatch(goBack())
   }, [dispatch])
-
-  const routeId = parseInt(match.params.id) || null
 
   function loaded() {
     console.log('loaded')

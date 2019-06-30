@@ -1,18 +1,22 @@
 import React from 'react'
+import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './LoginForm'
 import Pastes from './Pastes'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
 import { createMuiTheme } from '@material-ui/core/styles'
-import { Route, Redirect } from 'react-router-dom'
-import store from './state/store'
-import { Provider } from 'react-redux'
+import { Route, Redirect, Switch } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import history from './state/history'
 import { ConnectedRouter } from 'connected-react-router'
 import { makeStyles } from '@material-ui/styles'
+import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
 const useStyles = makeStyles(theme => ({
-  root: {
+  contentBox: {
+    display: 'absolute',
+  },
+  content: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -24,20 +28,26 @@ const useStyles = makeStyles(theme => ({
 
 function App() {
   const classes = useStyles()
+  const location = useSelector(state => state.router.location)
+  const authenticated = useSelector(state => state.auth.authenticated)
 
   return (
     <ThemeProvider theme={createMuiTheme()}>
-      <Provider store={store}>
-        <CssBaseline />
-        <div className={classes.root}>
-          <ConnectedRouter history={history}>
-            <Route path="/pastes/:id" component={Pastes} />
-            <Route exact path="/pastes" component={Pastes} />
-            <Route path="/login" component={LoginForm} />
-            <Redirect to="/login" />
-          </ConnectedRouter>
-        </div>
-      </Provider>
+      <CssBaseline />
+      <ConnectedRouter history={history}>
+        {!authenticated && <Redirect to="/login" />}
+        <TransitionGroup className="hi">
+          <CSSTransition key={location.key} classNames="fade" timeout={1000}>
+            <div className={classes.content}>
+              <Switch location={location}>
+                <Route exact path="/pastes/:id" component={Pastes} />
+                <Route exact path="/pastes" component={Pastes} />
+                <Route exact path="/login" component={LoginForm} />
+              </Switch>
+            </div>
+          </CSSTransition>
+        </TransitionGroup>
+      </ConnectedRouter>
     </ThemeProvider>
   )
 }
