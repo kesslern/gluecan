@@ -4,11 +4,14 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import IconButton from '@material-ui/core/IconButton'
+import BackIcon from '@material-ui/icons/ArrowBack'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EyeIcon from '@material-ui/icons/RemoveRedEye'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
 import { deletePaste } from './state/slices/pastes'
+import { push, goBack } from 'connected-react-router'
+import { useCallback } from 'react'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -16,9 +19,13 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
+  iframe: {
+    width: '100%',
+    flexGrow: 1,
+  },
 }))
 
-export default function Pastes({ onDelete }) {
+export default function Pastes({ match }) {
   const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
@@ -27,31 +34,65 @@ export default function Pastes({ onDelete }) {
     dispatch(deletePaste(id))
   }
 
+  const handleView = id => () => {
+    dispatch(push(`/pastes/${id}`))
+  }
+
+  const back = useCallback(() => {
+    dispatch(goBack())
+  }, [dispatch])
+
+  const routeId = parseInt(match.params.id) || null
+
+  function loaded() {
+    console.log('loaded')
+  }
+
   return pastes ? (
-    <List className={classes.root}>
-      {pastes.map(paste => (
-        <ListItem key={paste.id}>
-          <ListItemText primary={`ID: ${paste.id} Views: ${paste.views}`} />
-          <ListItemSecondaryAction>
-            <IconButton
-              component="a"
-              edge="end"
-              aria-label="View"
-              target="_blank"
-              href={`/view/${paste.id}`}
-            >
-              <EyeIcon />
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-label="Delete"
-              onClick={handleDelete(paste.id)}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      ))}
-    </List>
+    <React.Fragment>
+      <List className={classes.root}>
+        {pastes.map(
+          paste =>
+            (!routeId || routeId === paste.id) && (
+              <ListItem key={paste.id}>
+                <ListItemText
+                  primary={`ID: ${paste.id} Views: ${paste.views}`}
+                />
+                <ListItemSecondaryAction>
+                  {routeId ? (
+                    <IconButton edge="end" aria-label="View" onClick={back}>
+                      <BackIcon />
+                    </IconButton>
+                  ) : null}
+                  {!routeId && (
+                    <IconButton
+                      edge="end"
+                      aria-label="View"
+                      onClick={handleView(paste.id)}
+                    >
+                      <EyeIcon />
+                    </IconButton>
+                  )}
+                  <IconButton
+                    edge="end"
+                    aria-label="Delete"
+                    onClick={handleDelete(paste.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            )
+        )}
+      </List>
+      {routeId && (
+        <iframe
+          className={classes.iframe}
+          title="Content"
+          src={`/view/${routeId}`}
+          onLoad={loaded}
+        />
+      )}
+    </React.Fragment>
   ) : null
 }

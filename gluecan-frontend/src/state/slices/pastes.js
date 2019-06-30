@@ -1,4 +1,6 @@
 import { createSlice } from 'redux-starter-kit'
+import { goBack } from 'connected-react-router'
+import { batchActions } from 'redux-batched-actions'
 
 const pastes = createSlice({
   slice: 'pastes',
@@ -20,7 +22,13 @@ export function deletePaste(id) {
       method: 'delete',
       headers: { 'X-Auth': getState().auth.password },
     })
-    dispatch(actions.delete(id))
+    const toDispatch = [actions.delete(id)]
+
+    if (getState().router.location.pathname === `/pastes/${id}`) {
+      toDispatch.push(goBack())
+    }
+
+    dispatch(batchActions(toDispatch))
   }
 }
 

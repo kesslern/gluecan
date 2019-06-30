@@ -18,7 +18,8 @@ function App() {
         <CssBaseline />
         <div className="App">
           <ConnectedRouter history={history}>
-            <Route path="/pastes" component={Pastes} />
+            <Route path="/pastes/:id" component={Pastes} />
+            <Route exact path="/pastes" component={Pastes} />
             <Route path="/login" component={LoginForm} />
             <Redirect to="/login" />
           </ConnectedRouter>
