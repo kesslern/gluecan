@@ -14,7 +14,14 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
-    display: 'absolute',
+    '&> *': {
+      position: 'absolute',
+      width: '100%',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
   },
   content: {
     display: 'flex',
@@ -36,7 +43,7 @@ function App() {
       <CssBaseline />
       <ConnectedRouter history={history}>
         {!authenticated && <Redirect to="/login" />}
-        <TransitionGroup className="hi">
+        <TransitionGroup className={classes.contentBox}>
           <CSSTransition key={location.key} classNames="fade" timeout={1000}>
             <div className={classes.content}>
               <Switch location={location}>

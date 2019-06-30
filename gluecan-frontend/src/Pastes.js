@@ -1,6 +1,7 @@
 import React from 'react'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
+import Paper from '@material-ui/core/Paper'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import IconButton from '@material-ui/core/IconButton'
@@ -15,14 +16,17 @@ import { useCallback } from 'react'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: ({ routeId }) => (routeId ? 0 : theme.spacing(10)),
+    marginTop: ({ routeId }) =>
+      routeId ? theme.spacing(2) : theme.spacing(10),
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
   iframe: {
-    width: '100%',
+    width: '90%',
+    margin: theme.spacing(2, 0),
     flexGrow: 1,
+    border: 'none',
   },
 }))
 
@@ -86,7 +90,8 @@ export default function Pastes({ match }) {
         )}
       </List>
       {routeId && (
-        <iframe
+        <Paper
+          component={'iframe'}
           className={classes.iframe}
           title="Content"
           src={`/view/${routeId}`}
