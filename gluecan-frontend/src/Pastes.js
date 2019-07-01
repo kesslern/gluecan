@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import Paper from '@material-ui/core/Paper'
@@ -12,7 +12,7 @@ import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
 import { deletePaste } from './state/slices/pastes'
 import { push, goBack } from 'connected-react-router'
-import { useCallback } from 'react'
+import { Fade } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -35,6 +35,7 @@ export default function Pastes({ match }) {
   const classes = useStyles({ routeId })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
 
   const handleDelete = id => () => {
     dispatch(deletePaste(id))
@@ -49,8 +50,14 @@ export default function Pastes({ match }) {
   }, [dispatch])
 
   function loaded() {
-    console.log('loaded')
+    setIframeLoaded(true)
   }
+
+  useEffect(() => {
+    if (!routeId) {
+      setIframeLoaded(false)
+    }
+  }, [routeId, setIframeLoaded])
 
   return pastes ? (
     <React.Fragment>
@@ -90,13 +97,15 @@ export default function Pastes({ match }) {
         )}
       </List>
       {routeId && (
-        <Paper
-          component={'iframe'}
-          className={classes.iframe}
-          title="Content"
-          src={`/view/${routeId}`}
-          onLoad={loaded}
-        />
+        <Fade in={iframeLoaded}>
+          <Paper
+            component={'iframe'}
+            className={classes.iframe}
+            title="Content"
+            src={`/view/${routeId}`}
+            onLoad={loaded}
+          />
+        </Fade>
       )}
     </React.Fragment>
   ) : null

@@ -68,7 +68,7 @@ export default function LoginForm() {
           error={failure}
           helperText={failure && 'Login Failed'}
         />
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" type="submit">
           Go
         </Button>
       </Paper>
