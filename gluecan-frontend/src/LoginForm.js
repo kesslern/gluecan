@@ -1,12 +1,13 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import { login } from './state/slices/auth'
+import { login, preLogin } from './state/slices/auth'
 import { useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/styles'
+import { Redirect } from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -29,7 +30,7 @@ export default function LoginForm() {
   const classes = useStyles()
   const dispatch = useDispatch()
 
-  const { failure } = useSelector(state => state.auth)
+  const { failure, authenticated } = useSelector(state => state.auth)
   const [password, setPassword] = useState('')
 
   const updatePassword = useCallback(
@@ -46,6 +47,14 @@ export default function LoginForm() {
     },
     [dispatch, password]
   )
+
+  useEffect(() => {
+    dispatch(preLogin())
+  }, [dispatch])
+
+  if (authenticated) {
+    return <Redirect to="/pastes" />
+  }
 
   return (
     <React.Fragment>

@@ -6,6 +6,7 @@ const pastes = createSlice({
   slice: 'pastes',
   initialState: null,
   reducers: {
+    loading: () => 'loading',
     set: (_, action) => action.payload,
     delete: (state, action) => {
       return state.filter(paste => paste.id !== action.payload)
@@ -13,16 +14,16 @@ const pastes = createSlice({
   },
 })
 
-const { actions } = pastes
-const { set } = actions
+const {
+  actions: { set, loading, deleteAction },
+} = pastes
 
 export function deletePaste(id) {
   return (dispatch, getState) => {
     fetch(`/api/pastes/${id}`, {
       method: 'delete',
-      headers: { 'X-Auth': getState().auth.password },
     })
-    const toDispatch = [actions.delete(id)]
+    const toDispatch = [deleteAction(id)]
 
     if (getState().router.location.pathname === `/pastes/${id}`) {
       toDispatch.push(goBack())
@@ -32,5 +33,5 @@ export function deletePaste(id) {
   }
 }
 
-export { set as setPastes }
+export { set as setPastes, loading as loadingPastes }
 export default pastes.reducer

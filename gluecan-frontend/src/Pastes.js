@@ -10,7 +10,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import EyeIcon from '@material-ui/icons/RemoveRedEye'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
-import { deletePaste } from './state/slices/pastes'
+import { deletePaste, setPastes } from './state/slices/pastes'
 import { push, goBack } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
 
@@ -54,12 +54,26 @@ export default function Pastes({ match }) {
   }
 
   useEffect(() => {
+    if (pastes === null) {
+      fetch('/api/pastes')
+        .then(it => it.json())
+        .then(it => {
+          dispatch(setPastes(it))
+        })
+        .catch(e => {
+          console.log(e)
+          dispatch(push('/login'))
+        })
+    }
+  }, [pastes, dispatch])
+
+  useEffect(() => {
     if (!routeId) {
       setIframeLoaded(false)
     }
   }, [routeId, setIframeLoaded])
 
-  return pastes ? (
+  return Array.isArray(pastes) ? (
     <React.Fragment>
       <List className={classes.root}>
         {pastes.map(

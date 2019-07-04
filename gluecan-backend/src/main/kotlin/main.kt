@@ -2,14 +2,17 @@ package us.kesslern
 
 import io.javalin.Javalin
 import io.javalin.http.Context
+import org.eclipse.jetty.server.session.SessionHandler
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 fun main() {
+    val log = LoggerFactory.getLogger("main")
     val adminPass = System.getProperty("gluecan.pass", "change_me")
     val database = "jdbc:sqlite:gluecan"
     val flyway = Flyway.configure().dataSource(database, "su", null).load()
@@ -17,16 +20,26 @@ fun main() {
     Database.connect(database, driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
-    fun Context.authenticate(body: () -> Unit) {
-        val authHeader = this.header("X-Auth")
-        if (authHeader == adminPass) {
-            body()
-        } else {
-            this.status(401)
+    fun Context.authenticate(body: (() -> Unit)? = null): Boolean {
+        val authenticatedViaHeader = this.header("X-Auth") == adminPass
+        val authenticatedViaCookie = this.sessionAttribute<Boolean>("authenticated") == true
+        val authenticated = authenticatedViaHeader || authenticatedViaCookie
+
+        if (authenticatedViaHeader && !authenticatedViaCookie) {
+            this.req.changeSessionId()
+            this.sessionAttribute("authenticated", true)
         }
+
+        if (authenticated && body != null) body()
+        if (!authenticated) this.status(401)
+
+        return authenticated
     }
 
     val app = Javalin.create { config ->
+        config.sessionHandler {
+            SessionHandler()
+        }
         config.addStaticFiles("/frontend")
         config.addSinglePageRoot("/", "/frontend/index.html")
     }

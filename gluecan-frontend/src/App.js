@@ -36,20 +36,19 @@ const useStyles = makeStyles(theme => ({
 function App() {
   const classes = useStyles()
   const location = useSelector(state => state.router.location)
-  const authenticated = useSelector(state => state.auth.authenticated)
 
   return (
     <ThemeProvider theme={createMuiTheme()}>
       <CssBaseline />
       <ConnectedRouter history={history}>
-        {!authenticated && <Redirect to="/login" />}
         <TransitionGroup className={classes.contentBox}>
           <CSSTransition key={location.key} classNames="fade" timeout={1000}>
             <div className={classes.content}>
               <Switch location={location}>
-                <Route exact path="/pastes/:id" component={Pastes} />
-                <Route exact path="/pastes" component={Pastes} />
+                <Route path="/pastes/:id" component={Pastes} />
+                <Route path="/pastes" component={Pastes} />
                 <Route exact path="/login" component={LoginForm} />
+                <Redirect to="/pastes" />
               </Switch>
             </div>
           </CSSTransition>
