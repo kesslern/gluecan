@@ -36,6 +36,7 @@ export function preLogin() {
       .then(it => {
         dispatch(batchActions([setPastes(it), success(), push('/pastes')]))
       })
+      .catch(() => {})
   }
 }
 

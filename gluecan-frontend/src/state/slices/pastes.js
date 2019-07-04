@@ -15,7 +15,7 @@ const pastes = createSlice({
 })
 
 const {
-  actions: { set, loading, deleteAction },
+  actions: { set, loading, delete: deleteAction },
 } = pastes
 
 export function deletePaste(id) {

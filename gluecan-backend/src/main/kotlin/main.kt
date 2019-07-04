@@ -1,6 +1,8 @@
 package us.kesslern
 
 import io.javalin.Javalin
+import io.javalin.core.security.Role
+import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.http.Context
 import org.eclipse.jetty.server.session.SessionHandler
 import org.flywaydb.core.Flyway
@@ -11,6 +13,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 
+internal enum class MyRole : Role {
+    AUTHENTICATED
+}
+
 fun main() {
     val log = LoggerFactory.getLogger("main")
     val adminPass = System.getProperty("gluecan.pass", "change_me")
@@ -20,37 +26,35 @@ fun main() {
     Database.connect(database, driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
-    fun Context.authenticate(body: (() -> Unit)? = null): Boolean {
-        val authenticatedViaHeader = this.header("X-Auth") == adminPass
-        val authenticatedViaCookie = this.sessionAttribute<Boolean>("authenticated") == true
-        val authenticated = authenticatedViaHeader || authenticatedViaCookie
-
-        if (authenticatedViaHeader && !authenticatedViaCookie) {
-            this.req.changeSessionId()
-            this.sessionAttribute("authenticated", true)
-        }
-
-        if (authenticated && body != null) body()
-        if (!authenticated) this.status(401)
-
-        return authenticated
-    }
-
     val app = Javalin.create { config ->
         config.sessionHandler {
             SessionHandler()
         }
         config.addStaticFiles("/frontend")
         config.addSinglePageRoot("/", "/frontend/index.html")
-    }
+        config.accessManager { handler, ctx, permittedRoles ->
+            val authenticatedViaHeader = ctx.header("X-Auth") == adminPass
+            val authenticatedViaCookie = ctx.sessionAttribute<Boolean>("authenticated") == true
+            val authenticated = authenticatedViaHeader || authenticatedViaCookie
 
-    app.get("/api/pastes") { ctx ->
-        ctx.authenticate {
-            transaction {
-                ctx.dboToJson(PasteDBO.all())
+            if (authenticatedViaHeader && !authenticatedViaCookie) {
+                ctx.req.changeSessionId()
+                ctx.sessionAttribute("authenticated", true)
+            }
+
+            if ((permittedRoles.contains(MyRole.AUTHENTICATED) && authenticated) || permittedRoles.size == 0) {
+                handler.handle(ctx)
+            } else {
+                ctx.status(401)
             }
         }
     }
+
+    app.get("/api/pastes", { ctx ->
+        transaction {
+            ctx.dboToJson(PasteDBO.all())
+        }
+    }, roles(MyRole.AUTHENTICATED))
 
     fun template(paste: Paste) = """
         <html>
@@ -91,33 +95,29 @@ fun main() {
         }
     }
 
-    app.delete("/api/pastes/:id") { ctx ->
-        ctx.authenticate {
-            transaction {
-                val id = ctx.pathParam(":id").toInt()
-                val paste = PasteDBO.findById(id)
+    app.delete("/api/pastes/:id", { ctx ->
+        transaction {
+            val id = ctx.pathParam(":id").toInt()
+            val paste = PasteDBO.findById(id)
 
-                if (paste != null) {
-                    paste.delete()
-                    ctx.status(200)
-                } else {
-                    ctx.status(410)
-                }
+            if (paste != null) {
+                paste.delete()
+                ctx.status(200)
+            } else {
+                ctx.status(410)
             }
         }
-    }
+    }, roles(MyRole.AUTHENTICATED))
 
-    app.post("/api/pastes") { ctx ->
-        ctx.authenticate {
-            val id = transaction {
-                PastesTable.insert {
-                    it[language] = ctx.queryParam("lang")
-                    it[text] = ctx.body()
-                }[PastesTable.id]
-            }
-            ctx.result(id.value.toString())
+    app.post("/api/pastes", { ctx ->
+        val id = transaction {
+            PastesTable.insert {
+                it[language] = ctx.queryParam("lang")
+                it[text] = ctx.body()
+            }[PastesTable.id]
         }
-    }
+        ctx.result(id.value.toString())
+    }, roles(MyRole.AUTHENTICATED))
 
     app.start(8080)
 }
