@@ -28,7 +28,9 @@ fun main() {
 
     val app = Javalin.create { config ->
         config.sessionHandler {
-            SessionHandler()
+            val handler = SessionHandler()
+            handler.maxInactiveInterval = 15 * 60
+            handler
         }
         config.addStaticFiles("/frontend")
         config.addSinglePageRoot("/", "/frontend/index.html")
