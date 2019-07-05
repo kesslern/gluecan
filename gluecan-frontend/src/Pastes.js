@@ -76,6 +76,11 @@ export default function Pastes({ match }) {
   return Array.isArray(pastes) ? (
     <React.Fragment>
       <List className={classes.root}>
+        {pastes.length === 0 && (
+          <ListItem>
+            <ListItemText primary={`There are no pastes.`} />
+          </ListItem>
+        )}
         {pastes.map(
           paste =>
             (!routeId || routeId === paste.id) && (

@@ -6,10 +6,13 @@ import { push } from 'connected-react-router'
 const auth = createSlice({
   slice: 'auth',
   initialState: {
-    authenticated: false,
+    authenticated: null,
     failure: false,
   },
   reducers: {
+    unauthenticated: state => {
+      state.authenticated = false
+    },
     failure: state => {
       state.failure = true
     },
@@ -21,7 +24,7 @@ const auth = createSlice({
 })
 
 const {
-  actions: { failure, success },
+  actions: { failure, success, unauthenticated },
 } = auth
 
 /**
@@ -36,7 +39,7 @@ export function preLogin() {
       .then(it => {
         dispatch(batchActions([setPastes(it), success(), push('/pastes')]))
       })
-      .catch(() => {})
+      .catch(() => dispatch(unauthenticated()))
   }
 }
 

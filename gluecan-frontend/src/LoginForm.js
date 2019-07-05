@@ -52,35 +52,42 @@ export default function LoginForm() {
     dispatch(preLogin())
   }, [dispatch])
 
-  if (authenticated) {
+  if (authenticated === true) {
     return <Redirect to="/pastes" />
   }
 
-  return (
-    <React.Fragment>
-      <Typography
-        variant="h5"
-        color="textSecondary"
-        className={classes.heading}
-      >
-        GlueCan Administration
-      </Typography>
-      <Paper component="form" className={classes.root} onSubmit={handleSubmit}>
-        <TextField
-          id="password"
-          label="Password"
-          margin="normal"
-          variant="outlined"
-          type="password"
-          value={password}
-          onChange={updatePassword}
-          error={failure}
-          helperText={failure && 'Login Failed'}
-        />
-        <Button variant="contained" color="primary" type="submit">
-          Go
-        </Button>
-      </Paper>
-    </React.Fragment>
-  )
+  if (authenticated === false)
+    return (
+      <React.Fragment>
+        <Typography
+          variant="h5"
+          color="textSecondary"
+          className={classes.heading}
+        >
+          GlueCan Administration
+        </Typography>
+        <Paper
+          component="form"
+          className={classes.root}
+          onSubmit={handleSubmit}
+        >
+          <TextField
+            id="password"
+            label="Password"
+            margin="normal"
+            variant="outlined"
+            type="password"
+            value={password}
+            onChange={updatePassword}
+            error={failure}
+            helperText={failure && 'Login Failed'}
+          />
+          <Button variant="contained" color="primary" type="submit">
+            Go
+          </Button>
+        </Paper>
+      </React.Fragment>
+    )
+
+  return null
 }
