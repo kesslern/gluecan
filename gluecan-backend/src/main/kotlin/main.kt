@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.lang.Math.max
 import java.sql.Connection
 
 internal enum class MyRole : Role {
@@ -73,10 +74,10 @@ fun main() {
         </style>
         </head>
         <body>
-        <pre><code${if (paste.language != null) " class=${paste.language}" else ""}>${paste.text}</pre></code>
+        <pre><code${if (paste.language != null) " class=${paste.language}" else ""}>${paste.toHtml()}</pre></code>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 
     app.get("/view/:id") { ctx ->
         val paste = transaction {
@@ -154,3 +155,17 @@ class PasteDBO(id: EntityID<Int>) : IntEntity(id), DBOToData<Paste> {
 fun Context.dboToJson(it: DBOToData<*>) = this.json(it.toData()!!)
 
 fun Context.dboToJson(it: Iterable<DBOToData<*>>) = this.json(it.map { it.toData() })
+
+fun Paste.toHtml(): String {
+    val out = StringBuilder(max(16, this.text.length))
+    for (c in text) {
+        if (c.toInt() > 127 || c == '"' || c == '<' || c == '>' || c == '&') {
+            out.append("&#")
+            out.append(c.toInt())
+            out.append(';')
+        } else {
+            out.append(c)
+        }
+    }
+    return out.toString()
+}
