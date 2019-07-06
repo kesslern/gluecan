@@ -35,6 +35,7 @@ export default function Pastes({ match }) {
   const classes = useStyles({ routeId })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
+  const authenticated = useSelector(state => state.auth.authenticated)
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
   const handleDelete = useCallback(
@@ -136,6 +137,6 @@ export default function Pastes({ match }) {
       )}
     </React.Fragment>
   ) : (
-    <h2>There are no pastes.</h2>
+    authenticated && <h2>There are no pastes.</h2>
   )
 }
