@@ -65,7 +65,7 @@ fun main() {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>GlueCan #${paste.id}</title>
-        <link rel="stylesheet" href="/solarized-dark.css">
+        <link rel="stylesheet" href="/solarized-light.css">
         <script src="/highlight.pack.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
         <style>
