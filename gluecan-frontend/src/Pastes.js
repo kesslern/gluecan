@@ -37,13 +37,19 @@ export default function Pastes({ match }) {
   const pastes = useSelector(state => state.pastes)
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
-  const handleDelete = id => () => {
-    dispatch(deletePaste(id))
-  }
+  const handleDelete = useCallback(
+    id => () => {
+      dispatch(deletePaste(id))
+    },
+    [dispatch]
+  )
 
-  const handleView = id => () => {
-    dispatch(push(`/pastes/${id}`))
-  }
+  const handleView = useCallback(
+    id => () => {
+      dispatch(push(`/pastes/${id}`))
+    },
+    [dispatch]
+  )
 
   const back = useCallback(() => {
     dispatch(goBack())
@@ -52,6 +58,13 @@ export default function Pastes({ match }) {
   function loaded() {
     setIframeLoaded(true)
   }
+
+  useEffect(() => {
+    console.log('mounting')
+    return () => {
+      console.log('unmounting')
+    }
+  }, [])
 
   useEffect(() => {
     if (pastes === null) {
@@ -73,14 +86,9 @@ export default function Pastes({ match }) {
     }
   }, [routeId, setIframeLoaded])
 
-  return Array.isArray(pastes) ? (
+  return Array.isArray(pastes) && pastes.length > 0 ? (
     <React.Fragment>
       <List className={classes.root}>
-        {pastes.length === 0 && (
-          <ListItem>
-            <ListItemText primary={`There are no pastes.`} />
-          </ListItem>
-        )}
         {pastes.map(
           paste =>
             (!routeId || routeId === paste.id) && (
@@ -127,5 +135,7 @@ export default function Pastes({ match }) {
         </Fade>
       )}
     </React.Fragment>
-  ) : null
+  ) : (
+    <h2>There are no pastes.</h2>
+  )
 }
