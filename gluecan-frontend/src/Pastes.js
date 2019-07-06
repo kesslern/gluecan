@@ -1,13 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
 import Paper from '@material-ui/core/Paper'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import IconButton from '@material-ui/core/IconButton'
-import BackIcon from '@material-ui/icons/ArrowBack'
-import DeleteIcon from '@material-ui/icons/Delete'
-import EyeIcon from '@material-ui/icons/RemoveRedEye'
+import PasteList from './PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
 import { deletePaste, setPastes } from './state/slices/pastes'
@@ -15,13 +8,6 @@ import { push, goBack } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    marginTop: ({ routeId }) =>
-      routeId ? theme.spacing(2) : theme.spacing(10),
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
   iframe: {
     width: '90%',
     margin: theme.spacing(2, 0),
@@ -89,41 +75,7 @@ export default function Pastes({ match }) {
 
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <React.Fragment>
-      <List className={classes.root}>
-        {pastes.map(
-          paste =>
-            (!routeId || routeId === paste.id) && (
-              <ListItem key={paste.id}>
-                <ListItemText
-                  primary={`ID: ${paste.id} Views: ${paste.views}`}
-                />
-                <ListItemSecondaryAction>
-                  {routeId ? (
-                    <IconButton edge="end" aria-label="View" onClick={back}>
-                      <BackIcon />
-                    </IconButton>
-                  ) : null}
-                  {!routeId && (
-                    <IconButton
-                      edge="end"
-                      aria-label="View"
-                      onClick={handleView(paste.id)}
-                    >
-                      <EyeIcon />
-                    </IconButton>
-                  )}
-                  <IconButton
-                    edge="end"
-                    aria-label="Delete"
-                    onClick={handleDelete(paste.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            )
-        )}
-      </List>
+      <PasteList selected={routeId} />
       {routeId && (
         <Fade in={iframeLoaded}>
           <Paper
