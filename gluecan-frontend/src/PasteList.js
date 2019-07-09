@@ -15,8 +15,7 @@ import PropTypes from 'prop-types'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: ({ selected }) =>
-      selected ? theme.spacing(2) : theme.spacing(10),
+    marginTop: theme.spacing(10),
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
@@ -24,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function PasteList({ selected }) {
-  const classes = useStyles({ selected })
+  const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
 
@@ -55,19 +54,17 @@ export default function PasteList({ selected }) {
               <ListItemText
                 primary={`Paste #${paste.id}`}
                 secondary={
-                  <React.Fragment>
-                    {paste.views === 1 ? (
-                      <div>
-                        {paste.language && paste.language + ', '}
-                        {paste.views} view
-                      </div>
-                    ) : (
-                      <div>
-                        {paste.language && paste.language + ', '}
-                        {paste.views} views
-                      </div>
-                    )}
-                  </React.Fragment>
+                  paste.views === 1 ? (
+                    <>
+                      {paste.language && paste.language + ', '}
+                      {paste.views} view
+                    </>
+                  ) : (
+                    <>
+                      {paste.language && paste.language + ', '}
+                      {paste.views} views
+                    </>
+                  )
                 }
               />
               <ListItemSecondaryAction>

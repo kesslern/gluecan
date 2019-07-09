@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Paper from '@material-ui/core/Paper'
 import PasteList from './PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
-import { deletePaste, setPastes } from './state/slices/pastes'
-import { push, goBack } from 'connected-react-router'
+import { setPastes } from './state/slices/pastes'
+import { push } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
@@ -23,24 +23,6 @@ export default function Pastes({ match }) {
   const pastes = useSelector(state => state.pastes)
   const authenticated = useSelector(state => state.auth.authenticated)
   const [iframeLoaded, setIframeLoaded] = useState(false)
-
-  const handleDelete = useCallback(
-    id => () => {
-      dispatch(deletePaste(id))
-    },
-    [dispatch]
-  )
-
-  const handleView = useCallback(
-    id => () => {
-      dispatch(push(`/pastes/${id}`))
-    },
-    [dispatch]
-  )
-
-  const back = useCallback(() => {
-    dispatch(goBack())
-  }, [dispatch])
 
   function loaded() {
     setIframeLoaded(true)

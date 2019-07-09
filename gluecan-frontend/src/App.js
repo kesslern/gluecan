@@ -11,6 +11,9 @@ import history from './state/history'
 import { ConnectedRouter } from 'connected-react-router'
 import { makeStyles } from '@material-ui/styles'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
+import AppBar from '@material-ui/core/AppBar'
+import Typography from '@material-ui/core/Typography'
+import Toolbar from '@material-ui/core/Toolbar'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
@@ -41,6 +44,11 @@ function App() {
     <ThemeProvider theme={createMuiTheme()}>
       <CssBaseline />
       <ConnectedRouter history={history}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6">GlueCan</Typography>
+          </Toolbar>
+        </AppBar>
         <TransitionGroup className={classes.contentBox}>
           <CSSTransition key={location.key} classNames="fade" timeout={1000}>
             <div className={classes.content}>
