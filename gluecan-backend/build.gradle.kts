@@ -8,11 +8,22 @@ application {
     group = "us.kesslern"
     applicationName = "gluecan"
 
+
+    val args = mutableListOf<String>()
     val pass = System.getProperty("gluecan.pass")
+    val public = System.getProperty("gluecan.public", "false")
+
+
+
     if (pass != null) {
-        applicationDefaultJvmArgs = listOf("-Dgluecan.pass=$pass")
+        args += "-Dgluecan.pass=$pass"
     }
 
+    if (public == "true") {
+        args += "-Dgluecan.public=true"
+    }
+
+    applicationDefaultJvmArgs = args
 }
 
 dependencies {

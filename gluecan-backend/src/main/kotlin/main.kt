@@ -21,6 +21,7 @@ internal enum class MyRole : Role {
 fun main() {
     val log = LoggerFactory.getLogger("main")
     val adminPass = System.getProperty("gluecan.pass", "change_me")
+    val public = System.getProperty("gluecan.public", "false") == "true"
     val database = "jdbc:sqlite:gluecan"
     val flyway = Flyway.configure().dataSource(database, "su", null).load()
     flyway.migrate()
@@ -45,7 +46,10 @@ fun main() {
                 ctx.sessionAttribute("authenticated", true)
             }
 
-            if ((permittedRoles.contains(MyRole.AUTHENTICATED) && authenticated) || permittedRoles.size == 0) {
+            if ((permittedRoles.contains(MyRole.AUTHENTICATED) && authenticated)
+                || permittedRoles.size == 0
+                || public
+            ) {
                 handler.handle(ctx)
             } else {
                 ctx.status(401)
