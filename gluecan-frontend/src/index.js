@@ -4,11 +4,15 @@ import App from './App'
 import * as serviceWorker from './serviceWorker'
 import { Provider } from 'react-redux'
 import store from './state/store'
+import { ThemeProvider } from '@material-ui/styles'
+import { createMuiTheme } from '@material-ui/core/styles'
 
 ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  <ThemeProvider theme={createMuiTheme()}>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </ThemeProvider>,
   document.getElementById('root')
 )
 

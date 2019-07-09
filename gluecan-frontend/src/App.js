@@ -3,8 +3,6 @@ import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './LoginForm'
 import Pastes from './Pastes'
-import ThemeProvider from '@material-ui/styles/ThemeProvider'
-import { createMuiTheme } from '@material-ui/core/styles'
 import { Route, Redirect, Switch } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import history from './state/history'
@@ -17,22 +15,20 @@ import Toolbar from '@material-ui/core/Toolbar'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
+    flexGrow: 1,
     '&> *': {
       position: 'absolute',
       width: '100%',
-      top: 0,
+      top: theme.spacing(8),
       bottom: 0,
       left: 0,
       right: 0,
     },
   },
-  content: {
+  appRoot: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    spacing: 'spaceBetween',
     minHeight: '100vh',
-    width: '100%',
   },
 }))
 
@@ -41,7 +37,7 @@ function App() {
   const location = useSelector(state => state.router.location)
 
   return (
-    <ThemeProvider theme={createMuiTheme()}>
+    <div className={classes.appRoot}>
       <CssBaseline />
       <ConnectedRouter history={history}>
         <AppBar position="static">
@@ -51,7 +47,7 @@ function App() {
         </AppBar>
         <TransitionGroup className={classes.contentBox}>
           <CSSTransition key={location.key} classNames="fade" timeout={1000}>
-            <div className={classes.content}>
+            <div>
               <Switch location={location}>
                 <Route path="/pastes/:id" component={Pastes} />
                 <Route path="/pastes" component={Pastes} />
@@ -62,7 +58,7 @@ function App() {
           </CSSTransition>
         </TransitionGroup>
       </ConnectedRouter>
-    </ThemeProvider>
+    </div>
   )
 }
 

@@ -8,17 +8,24 @@ import { push } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
+  pasteContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    flexGrow: 1,
+  },
   iframe: {
-    width: '90%',
-    margin: theme.spacing(2, 0),
     flexGrow: 1,
     border: 'none',
+    height: '100%',
   },
 }))
 
 export default function Pastes({ match }) {
   const routeId = parseInt(match.params.id) || null
-  const classes = useStyles({ routeId })
+  const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
   const authenticated = useSelector(state => state.auth.authenticated)
@@ -56,7 +63,7 @@ export default function Pastes({ match }) {
   }, [routeId, setIframeLoaded])
 
   return Array.isArray(pastes) && pastes.length > 0 ? (
-    <React.Fragment>
+    <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
       {routeId && (
         <Fade in={iframeLoaded}>
@@ -69,7 +76,7 @@ export default function Pastes({ match }) {
           />
         </Fade>
       )}
-    </React.Fragment>
+    </div>
   ) : (
     authenticated && <h2>There are no pastes.</h2>
   )

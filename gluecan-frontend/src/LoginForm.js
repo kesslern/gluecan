@@ -10,7 +10,12 @@ import { makeStyles } from '@material-ui/styles'
 import { Redirect } from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
-  root: {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  form: {
     padding: theme.spacing(2, 3, 0),
     height: theme.spacing(15),
     display: 'flex',
@@ -21,7 +26,6 @@ const useStyles = makeStyles(theme => ({
     },
   },
   heading: {
-    marginTop: theme.spacing(10),
     marginBottom: theme.spacing(1),
   },
 }))
@@ -58,7 +62,7 @@ export default function LoginForm() {
 
   if (authenticated === false)
     return (
-      <React.Fragment>
+      <div className={classes.container}>
         <Typography
           variant="h5"
           color="textSecondary"
@@ -68,7 +72,7 @@ export default function LoginForm() {
         </Typography>
         <Paper
           component="form"
-          className={classes.root}
+          className={classes.form}
           onSubmit={handleSubmit}
         >
           <TextField
@@ -86,7 +90,7 @@ export default function LoginForm() {
             Go
           </Button>
         </Paper>
-      </React.Fragment>
+      </div>
     )
 
   return null
