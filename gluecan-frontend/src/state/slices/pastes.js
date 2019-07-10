@@ -1,5 +1,5 @@
 import { createSlice } from 'redux-starter-kit'
-import { goBack } from 'connected-react-router'
+import { goBack, push } from 'connected-react-router'
 import { batchActions } from 'redux-batched-actions'
 
 const pastes = createSlice({
@@ -30,6 +30,23 @@ export function deletePaste(id) {
     }
 
     dispatch(batchActions(toDispatch))
+  }
+}
+
+export function submitPaste(text) {
+  return (dispatch, getState) => {
+    fetch('/api/pastes', {
+      method: 'post',
+      body: text,
+    })
+      .then(it => it.text())
+      .then(id => {
+        fetch('/api/pastes')
+          .then(it => it.json())
+          .then(it => {
+            dispatch(batchActions([set(it), push(`/pastes/${id}`)]))
+          })
+      })
   }
 }
 

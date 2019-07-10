@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import makeStyles from '@material-ui/styles/makeStyles'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
+import { useDispatch } from 'react-redux'
+import { submitPaste } from './state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -24,21 +26,40 @@ const useStyles = makeStyles(theme => ({
 }))
 
 function New() {
+  const [text, updateText] = useState('')
+  const dispatch = useDispatch()
   const classes = useStyles()
 
+  const handleSubmit = useCallback(
+    e => {
+      e.preventDefault()
+      dispatch(submitPaste(text))
+    },
+    [dispatch, text]
+  )
+
+  const handleChange = useCallback(
+    e => {
+      updateText(e.currentTarget.value)
+    },
+    [updateText]
+  )
+
   return (
-    <div className={classes.container}>
+    <form className={classes.container} onSubmit={handleSubmit}>
       <Paper
         component="textarea"
         className={classes.textarea}
+        value={text}
+        onChange={handleChange}
         placeholder="Your text here..."
       ></Paper>
       <div className={classes.buttonContainer}>
-        <Button color="primary" variant="contained">
+        <Button color="primary" variant="contained" type="submit">
           Submit
         </Button>
       </div>
-    </div>
+    </form>
   )
 }
 
