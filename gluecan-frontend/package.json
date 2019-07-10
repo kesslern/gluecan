@@ -12,6 +12,7 @@
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
     "react-transition-group": "^4.2.0",
+    "react-use-toggle": "^0.1.0",
     "redux-batched-actions": "^0.4.1",
     "redux-starter-kit": "^0.5.1",
     "redux-thunk": "^2.3.0"
