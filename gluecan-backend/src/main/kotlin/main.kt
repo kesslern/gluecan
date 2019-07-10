@@ -93,14 +93,15 @@ fun main() {
 	        white-space: pre-wrap;
           }
           button {
-            -webkit-border-radius: 3;
-            -moz-border-radius: 3;
             border-radius: 3px;
             color: #626262;
             font-size: 20px;
             background: #e4e4e4;
-            padding: 10px 20px 10px 20px;
+            padding: 8px 16px;
             text-decoration: none;
+            position: fixed;
+            bottom: 0;
+            right: 0;
           }
           button.hover {
             background: #3cb0fd;
@@ -110,6 +111,9 @@ fun main() {
             background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
             background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
             text-decoration: none;
+          }
+          code {
+            padding-bottom: 45px !important;
           }
         </style>
         </head>
