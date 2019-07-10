@@ -71,10 +71,21 @@ fun main() {
         <title>GlueCan #${paste.id}</title>
         <link rel="stylesheet" href="/solarized-light.css">
         <script src="/highlight.pack.js"></script>
-        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+        <script>hljs.initHighlightingOnLoad(); hljs.initLineNumbersOnLoad();</script>
         <style>
           pre, body { margin: 0; padding: 0 }
-          code { box-sizing: border-box; min-height: 100vh; min-width: 100vw }
+          html { box-sizing: border-box; }
+          code { min-height: 100vh; min-width: 100vw }
+          td.hljs-ln-numbers {
+            border-right: 1px solid black;
+            padding: 0 5px;
+            color: #859900;
+          }
+          td.hljs-ln-code {
+            padding-left: 5px;
+	        white-space: pre-wrap;
+          }
         </style>
         </head>
         <body>
