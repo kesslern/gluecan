@@ -89,7 +89,7 @@ fun main() {
         </script>
         <style>
           pre, body { margin: 0; padding: 0 }
-          html { box-sizing: border-box; min-height: 100vh; width: 100% }
+          html, pre, body, code { box-sizing: border-box; min-height: 100vh; width: 100% }
           td.hljs-ln-numbers {
             border-right: 1px solid black;
             padding: 0 5px;
