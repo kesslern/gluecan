@@ -47,6 +47,7 @@ export default function PasteList({ selected }) {
           selected={paste.id === selected}
           button={true}
           onClick={handleView(paste.id)}
+          divider
         >
           <ListItemText
             primary={`Paste #${paste.id}`}
