@@ -4,6 +4,8 @@ import io.javalin.Javalin
 import io.javalin.core.security.Role
 import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.http.Context
+import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang.StringUtils
 import org.eclipse.jetty.server.session.SessionHandler
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.dao.*
@@ -13,6 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.lang.Math.max
 import java.sql.Connection
+import kotlin.random.Random
 
 internal enum class MyRole : Role {
     AUTHENTICATED
@@ -75,7 +78,11 @@ fun main() {
         <script>
           hljs.initHighlightingOnLoad();
           hljs.initLineNumbersOnLoad();
-          const text = `${paste.text}`
+          
+          let text
+          fetch('/api/pastes/${paste.id}/raw')
+            .then(response => response.text())
+            .then(data => text = data)
           function copyToClipboard() {
             navigator.clipboard.writeText(text)
           }
@@ -124,6 +131,21 @@ fun main() {
         </html>
         """.trimIndent()
 
+    app.get("/api/pastes/:id/raw") { ctx ->
+        val paste = transaction {
+            val id = ctx.pathParam(":id").toInt()
+            PasteDBO.findById(id)
+        }
+
+        if (paste == null) {
+            ctx.result("Not found")
+            ctx.status(410)
+        } else {
+            ctx.contentType("text/plain")
+            ctx.result(paste.text)
+        }
+    }
+
     app.get("/view/:id") { ctx ->
         val paste = transaction {
             val id = ctx.pathParam(":id").toInt()
@@ -158,13 +180,15 @@ fun main() {
     }, roles(MyRole.AUTHENTICATED))
 
     app.post("/api/pastes", { ctx ->
-        val id = transaction {
+        val id = uniqueId()
+        transaction {
             PastesTable.insert {
+                it[PastesTable.id] = EntityID(id, PastesTable)
                 it[language] = ctx.queryParam("lang")
                 it[text] = ctx.body()
             }[PastesTable.id]
         }
-        ctx.result(id.value.toString())
+        ctx.result(id.toString())
     }, roles(MyRole.AUTHENTICATED))
 
     app.start(8080)
@@ -201,16 +225,16 @@ fun Context.dboToJson(it: DBOToData<*>) = this.json(it.toData()!!)
 
 fun Context.dboToJson(it: Iterable<DBOToData<*>>) = this.json(it.map { it.toData() })
 
-fun Paste.toHtml(): String {
-    val out = StringBuilder(max(16, this.text.length))
-    for (c in text) {
-        if (c.toInt() > 127 || c == '"' || c == '<' || c == '>' || c == '&') {
-            out.append("&#")
-            out.append(c.toInt())
-            out.append(';')
-        } else {
-            out.append(c)
+fun Paste.toHtml(): String = StringEscapeUtils.escapeHtml(this.text)
+
+fun uniqueId(): Int {
+    var id = randomId()
+    transaction {
+        while (PasteDBO.findById(id) !== null) {
+            id = randomId()
         }
     }
-    return out.toString()
+    return id
 }
+
+fun randomId(): Int = Random.nextInt(0, 1000)

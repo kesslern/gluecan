@@ -34,5 +34,6 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.28.0")
     implementation("org.jetbrains.exposed:exposed:0.15.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")
+    implementation("commons-lang:commons-lang:2.6")
     runtime(project(":gluecan-frontend"))
 }
