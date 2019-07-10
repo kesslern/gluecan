@@ -72,11 +72,17 @@ fun main() {
         <link rel="stylesheet" href="/solarized-light.css">
         <script src="/highlight.pack.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
-        <script>hljs.initHighlightingOnLoad(); hljs.initLineNumbersOnLoad();</script>
+        <script>
+          hljs.initHighlightingOnLoad();
+          hljs.initLineNumbersOnLoad();
+          const text = `${paste.text}`
+          function copyToClipboard() {
+            navigator.clipboard.writeText(text)
+          }
+        </script>
         <style>
           pre, body { margin: 0; padding: 0 }
-          html { box-sizing: border-box; }
-          code { min-height: 100vh; min-width: 100vw }
+          html { box-sizing: border-box; min-height: 100vh; width: 100% }
           td.hljs-ln-numbers {
             border-right: 1px solid black;
             padding: 0 5px;
@@ -86,10 +92,30 @@ fun main() {
             padding-left: 5px;
 	        white-space: pre-wrap;
           }
+          button {
+            -webkit-border-radius: 3;
+            -moz-border-radius: 3;
+            border-radius: 3px;
+            color: #626262;
+            font-size: 20px;
+            background: #e4e4e4;
+            padding: 10px 20px 10px 20px;
+            text-decoration: none;
+          }
+          button.hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+          }
         </style>
         </head>
         <body>
-        <pre><code${if (paste.language != null) " class=${paste.language}" else ""}>${paste.toHtml()}</pre></code>
+        <button onClick="copyToClipboard()">Copy</button>
+        <pre><code id="paste"${if (paste.language != null) " class=${paste.language}" else ""}>${paste.toHtml()}</pre></code>
         </body>
         </html>
         """.trimIndent()
