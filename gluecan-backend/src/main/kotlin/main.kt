@@ -90,13 +90,17 @@ fun main() {
         <style>
           pre, body { margin: 0; padding: 0 }
           html, pre, body, code { box-sizing: border-box; min-height: 100vh; width: 100% }
+          #paste {
+            padding-left: 0;
+          }
           td.hljs-ln-numbers {
+            text-align: right;
             border-right: 1px solid black;
-            padding: 0 5px;
+            padding: 0 3px;
             color: #859900;
           }
           td.hljs-ln-code {
-            padding-left: 5px;
+            padding-left: 3px;
 	        white-space: pre-wrap;
           }
           button {
