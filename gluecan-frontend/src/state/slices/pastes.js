@@ -8,6 +8,9 @@ const pastes = createSlice({
   reducers: {
     loading: () => 'loading',
     set: (_, action) => action.payload,
+    viewed: (state, action) => {
+      state.find(it => it.id === action.payload).views++
+    },
     delete: (state, action) => {
       return state.filter(paste => paste.id !== action.payload)
     },
@@ -15,7 +18,7 @@ const pastes = createSlice({
 })
 
 const {
-  actions: { set, loading, delete: deleteAction },
+  actions: { set, loading, delete: deleteAction, viewed },
 } = pastes
 
 export function deletePaste(id) {
@@ -50,5 +53,5 @@ export function submitPaste(text) {
   }
 }
 
-export { set as setPastes, loading as loadingPastes }
+export { set as setPastes, loading as loadingPastes, viewed as viewedPaste }
 export default pastes.reducer

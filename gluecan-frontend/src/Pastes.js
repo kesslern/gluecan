@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Paper from '@material-ui/core/Paper'
 import PasteList from './PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
-import { setPastes } from './state/slices/pastes'
+import { setPastes, viewedPaste } from './state/slices/pastes'
 import { push } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
 
@@ -31,9 +31,13 @@ export default function Pastes({ match }) {
   const authenticated = useSelector(state => state.auth.authenticated)
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
-  function loaded() {
-    setIframeLoaded(true)
-  }
+  const handleIframeLoaded = useCallback(
+    id => () => {
+      dispatch(viewedPaste(id))
+      setIframeLoaded(true)
+    },
+    [setIframeLoaded, dispatch]
+  )
 
   useEffect(() => {
     console.log('mounting')
@@ -72,7 +76,7 @@ export default function Pastes({ match }) {
             className={classes.iframe}
             title="Content"
             src={`/view/${routeId}`}
-            onLoad={loaded}
+            onLoad={handleIframeLoaded(routeId)}
           />
         </Fade>
       )}
