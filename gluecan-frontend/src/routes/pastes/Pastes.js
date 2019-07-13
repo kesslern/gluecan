@@ -40,13 +40,6 @@ export default function Pastes({ match }) {
   )
 
   useEffect(() => {
-    console.log('mounting')
-    return () => {
-      console.log('unmounting')
-    }
-  }, [])
-
-  useEffect(() => {
     if (pastes === null) {
       fetch('/api/pastes')
         .then(it => it.json())

@@ -230,8 +230,7 @@ function getSuggestionValue(suggestion) {
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginBottom: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    marginLeft: 'auto',
     maxWidth: 300,
   },
   container: {
@@ -257,7 +256,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function IntegrationAutosuggest() {
+export default function IntegrationAutosuggest({ onSelect }) {
   const classes = useStyles()
   const [state, setState] = React.useState('')
   const [stateSuggestions, setSuggestions] = React.useState([])
@@ -276,7 +275,8 @@ export default function IntegrationAutosuggest() {
 
   const handleSuggestionSelected = (event, { suggestionValue }) => {
     event.preventDefault()
-    console.log('selected: ' + suggestionValue)
+    const { language } = suggestions.find(it => it.label === suggestionValue)
+    onSelect(language)
   }
 
   const autosuggestProps = {

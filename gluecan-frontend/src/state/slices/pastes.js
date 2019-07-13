@@ -36,9 +36,11 @@ export function deletePaste(id) {
   }
 }
 
-export function submitPaste(text) {
+export function submitPaste({ text, language }) {
   return (dispatch, getState) => {
-    fetch('/api/pastes', {
+    const queryParams = language ? `?lang=${encodeURIComponent(language)}` : ''
+
+    fetch(`/api/pastes${queryParams}`, {
       method: 'post',
       body: text,
     })

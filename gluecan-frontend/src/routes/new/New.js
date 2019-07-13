@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button'
 import Dropdown from './Dropdown'
 import { useDispatch } from 'react-redux'
 import { submitPaste } from '../../state/slices/pastes'
+import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -20,6 +21,11 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     flexGrow: 1,
   },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2),
+  },
   button: {
     marginLeft: 'auto',
     marginTop: theme.spacing(2),
@@ -28,16 +34,14 @@ const useStyles = makeStyles(theme => ({
 
 function New() {
   const [text, updateText] = useState('')
+  const [language, setLanguage] = useState(null)
   const dispatch = useDispatch()
   const classes = useStyles()
 
-  const handleSubmit = useCallback(
-    e => {
-      e.preventDefault()
-      dispatch(submitPaste(text))
-    },
-    [dispatch, text]
-  )
+  function handleSubmit(e) {
+    e.preventDefault()
+    dispatch(submitPaste({ text, language }))
+  }
 
   const handleChange = useCallback(
     e => {
@@ -53,8 +57,10 @@ function New() {
       value={text}
       onSubmit={handleSubmit}
     >
-      <Dropdown />
-
+      <section className={classes.header}>
+        <Typography variant="h5">Add a new paste</Typography>
+        <Dropdown onSelect={setLanguage} />
+      </section>
       <textarea
         className={classes.textarea}
         onChange={handleChange}
