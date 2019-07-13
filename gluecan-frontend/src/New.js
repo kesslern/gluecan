@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import makeStyles from '@material-ui/styles/makeStyles'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
+import Dropdown from './Dropdown'
 import { useDispatch } from 'react-redux'
 import { submitPaste } from './state/slices/pastes'
 
@@ -59,6 +60,7 @@ function New() {
         placeholder="Your text here..."
       />
       <div className={classes.buttonContainer}>
+        <Dropdown />
         <Button color="primary" variant="contained" type="submit">
           Submit
         </Button>
