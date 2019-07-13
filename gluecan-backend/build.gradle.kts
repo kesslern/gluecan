@@ -11,16 +11,24 @@ application {
 
     val args = mutableListOf<String>()
     val pass = System.getProperty("gluecan.pass")
-    val public = System.getProperty("gluecan.public", "false")
-
-
-
+    val public = System.getProperty("gluecan.public")
+    val keystorePath = System.getProperty("gluecan.keystorePath")
+    val keystorePassword = System.getProperty("gluecan.keystorePassword")
+    
     if (pass != null) {
         args += "-Dgluecan.pass=$pass"
     }
 
-    if (public == "true") {
-        args += "-Dgluecan.public=true"
+    if (public != null) {
+        args += "-Dgluecan.public=$public"
+    }
+
+    if (keystorePath != null) {
+        args += "-Dgluecan.keystorePath=$keystorePath"
+    }
+
+    if (keystorePassword != null) {
+        args += "-Dgluecan.keystorePassword=$keystorePassword"
     }
 
     applicationDefaultJvmArgs = args

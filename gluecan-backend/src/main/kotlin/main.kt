@@ -6,6 +6,8 @@ import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.http.Context
 import org.apache.commons.lang.StringEscapeUtils
 import org.apache.commons.lang.StringUtils
+import org.eclipse.jetty.server.Connector
+import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.session.SessionHandler
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.dao.*
@@ -16,22 +18,59 @@ import org.slf4j.LoggerFactory
 import java.lang.Math.max
 import java.sql.Connection
 import kotlin.random.Random
+import org.eclipse.jetty.server.ServerConnector
+import org.eclipse.jetty.util.log.JettyLogHandler.config
+import org.eclipse.jetty.util.ssl.SslContextFactory
 
 internal enum class MyRole : Role {
     AUTHENTICATED
 }
 
+object Config {
+    val adminPass = System.getProperty("gluecan.pass", "change_me")
+    val public = System.getProperty("gluecan.public", "false").toLowerCase() == "true"
+    val database = "jdbc:sqlite:gluecan"
+    val keystorePath: String?  = System.getProperty("gluecan.keystorePath")
+    val keystorePassword: String? = System.getProperty("gluecan.keystorePassword")
+}
+
+private fun getSslContextFactory(): SslContextFactory.Server {
+    val sslContextFactory = SslContextFactory.Server()
+    sslContextFactory.keyStorePath = Config.keystorePath
+    sslContextFactory.setKeyStorePassword(Config.keystorePassword)
+    return sslContextFactory
+}
+
 fun main() {
     val log = LoggerFactory.getLogger("main")
-    val adminPass = System.getProperty("gluecan.pass", "change_me")
-    val public = System.getProperty("gluecan.public", "false") == "true"
-    val database = "jdbc:sqlite:gluecan"
-    val flyway = Flyway.configure().dataSource(database, "su", null).load()
+    val flyway = Flyway.configure().dataSource(Config.database, "su", null).load()
     flyway.migrate()
-    Database.connect(database, driver = "org.sqlite.JDBC")
+    Database.connect(Config.database, driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 
     val app = Javalin.create { config ->
+        config.server {
+            val server = Server()
+
+            val sslConnector = if (Config.keystorePath != null) {
+                log.info("Enabling SSL")
+                val sslConnector = ServerConnector(server, getSslContextFactory())
+                sslConnector.setPort(8443)
+                sslConnector
+            } else null
+
+            val connector = ServerConnector(server)
+            connector.port = 8080
+
+            if (sslConnector != null) {
+                server.connectors = arrayOf(sslConnector, connector)
+            } else {
+                server.connectors = arrayOf(connector)
+            }
+
+            server
+        }
+
         config.sessionHandler {
             val handler = SessionHandler()
             handler.maxInactiveInterval = 15 * 60
@@ -40,7 +79,7 @@ fun main() {
         config.addStaticFiles("/frontend")
         config.addSinglePageRoot("/", "/frontend/index.html")
         config.accessManager { handler, ctx, permittedRoles ->
-            val authenticatedViaHeader = ctx.header("X-Auth") == adminPass
+            val authenticatedViaHeader = ctx.header("X-Auth") == Config.adminPass
             val authenticatedViaCookie = ctx.sessionAttribute<Boolean>("authenticated") == true
             val authenticated = authenticatedViaHeader || authenticatedViaCookie
 
@@ -51,7 +90,7 @@ fun main() {
 
             if ((permittedRoles.contains(MyRole.AUTHENTICATED) && authenticated)
                 || permittedRoles.size == 0
-                || public
+                || Config.public
             ) {
                 handler.handle(ctx)
             } else {
