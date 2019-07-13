@@ -20,10 +20,9 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     flexGrow: 1,
   },
-  buttonContainer: {
+  button: {
+    marginLeft: 'auto',
     marginTop: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'row-reverse',
   },
 }))
 
@@ -54,17 +53,21 @@ function New() {
       value={text}
       onSubmit={handleSubmit}
     >
+      <Dropdown />
+
       <textarea
         className={classes.textarea}
         onChange={handleChange}
         placeholder="Your text here..."
       />
-      <div className={classes.buttonContainer}>
-        <Dropdown />
-        <Button color="primary" variant="contained" type="submit">
-          Submit
-        </Button>
-      </div>
+      <Button
+        className={classes.button}
+        color="primary"
+        variant="contained"
+        type="submit"
+      >
+        Submit
+      </Button>
     </Paper>
   )
 }
