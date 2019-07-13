@@ -15,7 +15,6 @@ import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import New from './routes/new/New'
-import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
@@ -38,15 +37,24 @@ const useStyles = makeStyles(theme => ({
     '& h6': {
       flexGrow: 1,
     },
-    '& .MuiButton-root': {
+    '& .MuiButtonBase-root': {
+      width: theme.spacing(10),
+      marginTop: '3px',
+      borderRadius: 0,
       transition: 'border 0s',
       height: theme.spacing(6),
     },
-  },
-  active: {
-    marginTop: '3px',
-    borderBottom: '3px solid white',
-    borderRadius: 0,
+    '& >:nth-child(2):before': {
+      visibility: ({ idx }) => (idx ? 'visible' : 'none'),
+      content: '""',
+      position: 'absolute',
+      top: '0',
+      left: ({ idx }) => (idx || 0) * 80,
+      width: theme.spacing(10),
+      height: '100%',
+      borderBottom: '3px solid white',
+      transition: 'left .1s linear',
+    },
   },
 }))
 
@@ -58,9 +66,20 @@ const LinkToPastes = React.forwardRef((props, ref) => (
   <RouterLink innerRef={ref} to={'/pastes'} {...props} />
 ))
 
+function getIndex(location) {
+  if (location === '/new') {
+    return 1
+  } else if (location.startsWith('/pastes')) {
+    return 0
+  }
+}
+
 function App() {
-  const classes = useStyles()
   const location = useSelector(state => state.router.location)
+  const idx = getIndex(location.pathname)
+
+  const classes = useStyles({ idx })
+
   console.log(location)
   return (
     <div className={classes.appRoot}>
@@ -69,22 +88,10 @@ function App() {
         <AppBar position="static">
           <Toolbar variant="dense" className={classes.toolBar}>
             <Typography variant="h6">GlueCan</Typography>
-            <Button
-              component={LinkToPastes}
-              color="inherit"
-              className={clsx({
-                [classes.active]: location.pathname.startsWith('/pastes'),
-              })}
-            >
+            <Button component={LinkToPastes} color="inherit">
               Pastes
             </Button>
-            <Button
-              component={LinkToNew}
-              color="inherit"
-              className={clsx({
-                [classes.active]: location.pathname === '/new',
-              })}
-            >
+            <Button component={LinkToNew} color="inherit">
               New
             </Button>
           </Toolbar>
