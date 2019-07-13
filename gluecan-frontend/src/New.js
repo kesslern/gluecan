@@ -7,8 +7,9 @@ import { submitPaste } from './state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   container: {
-    width: '100%',
-    height: '100%',
+    margin: `${theme.spacing(2)}px auto`,
+    width: '90%',
+    height: '90%',
     padding: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
@@ -46,20 +47,23 @@ function New() {
   )
 
   return (
-    <form className={classes.container} onSubmit={handleSubmit}>
-      <Paper
-        component="textarea"
+    <Paper
+      component="form"
+      className={classes.container}
+      value={text}
+      onSubmit={handleSubmit}
+    >
+      <textarea
         className={classes.textarea}
-        value={text}
         onChange={handleChange}
         placeholder="Your text here..."
-      ></Paper>
+      />
       <div className={classes.buttonContainer}>
         <Button color="primary" variant="contained" type="submit">
           Submit
         </Button>
       </div>
-    </form>
+    </Paper>
   )
 }
 
