@@ -115,6 +115,7 @@ const suggestions = [
   { label: 'PHP', language: 'php' },
   { label: 'Parser3', language: 'parser3' },
   { label: 'Perl', language: 'perl' },
+  { label: 'Plain Text', language: 'no-highlight' },
   { label: 'Pony', language: 'pony' },
   { label: 'PowerShell', language: 'powershell' },
   { label: 'Processing', language: 'processing' },

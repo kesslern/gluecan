@@ -169,7 +169,7 @@ fun main() {
         </head>
         <body>
         <button onClick="copyToClipboard()">Copy</button>
-        <pre><code id="paste"${if (paste.language != null) " class=${paste.language}" else ""}>${paste.toHtml()}</pre></code>
+        <pre><code id="paste" class="hljs ${paste.language ?: ""}">${paste.toHtml()}</pre></code>
         </body>
         </html>
         """.trimIndent()
