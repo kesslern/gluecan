@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './routes/login/LoginForm'
@@ -28,6 +28,9 @@ const useStyles = makeStyles(theme => ({
       right: 0,
     },
   },
+  buttonContainer: {
+    position: 'relative',
+  },
   appRoot: {
     display: 'flex',
     flexDirection: 'column',
@@ -38,6 +41,7 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 1,
     },
     '& .MuiButtonBase-root': {
+      zIndex: 3,
       width: theme.spacing(10),
       marginTop: '3px',
       borderRadius: 0,
@@ -45,6 +49,7 @@ const useStyles = makeStyles(theme => ({
       height: theme.spacing(6),
     },
     '& >:nth-child(2):before': {
+      zIndex: 2,
       visibility: ({ idx }) => (idx ? 'visible' : 'none'),
       content: '""',
       position: 'absolute',
@@ -54,6 +59,21 @@ const useStyles = makeStyles(theme => ({
       height: '100%',
       borderBottom: '3px solid white',
       transition: 'left .1s linear',
+    },
+    '& >:nth-child(2):after': {
+      zIndex: 1,
+      visibility: ({ hoverActive }) => (hoverActive ? 'visible' : 'none'),
+      content: '""',
+      position: 'absolute',
+      top: '0',
+      left: ({ hoverIndex }) => theme.spacing(hoverIndex * 10),
+      width: theme.spacing(10),
+      height: '100%',
+      borderBottom: ({ hoverActive }) =>
+        hoverActive
+          ? '3px solid rgba(255,255,255,.7)'
+          : '0px solid rgba(255,255,255,.7)',
+      transition: 'left .1s linear, border-bottom .2s ease-in-out',
     },
   },
 }))
@@ -76,11 +96,20 @@ function getIndex(location) {
 
 function App() {
   const location = useSelector(state => state.router.location)
+  const [hoverIndex, setHoverIndex] = useState(0)
+  const [hoverActive, setHoverActive] = useState(false)
   const idx = getIndex(location.pathname)
 
-  const classes = useStyles({ idx })
+  const classes = useStyles({ idx, hoverActive, hoverIndex })
 
-  console.log(location)
+  const handleHover = value => () => {
+    if (value !== true && value !== false) {
+      setHoverIndex(value)
+    } else {
+      setHoverActive(value)
+    }
+  }
+
   return (
     <div className={classes.appRoot}>
       <CssBaseline />
@@ -88,12 +117,26 @@ function App() {
         <AppBar position="static">
           <Toolbar variant="dense" className={classes.toolBar}>
             <Typography variant="h6">GlueCan</Typography>
-            <Button component={LinkToPastes} color="inherit">
-              Pastes
-            </Button>
-            <Button component={LinkToNew} color="inherit">
-              New
-            </Button>
+            <div
+              className={classes.buttonContainer}
+              onMouseLeave={handleHover(false)}
+              onMouseEnter={handleHover(true)}
+            >
+              <Button
+                component={LinkToPastes}
+                onMouseEnter={handleHover(0)}
+                color="inherit"
+              >
+                Pastes
+              </Button>
+              <Button
+                component={LinkToNew}
+                onMouseEnter={handleHover(1)}
+                color="inherit"
+              >
+                New
+              </Button>
+            </div>
           </Toolbar>
         </AppBar>
         <TransitionGroup className={classes.contentBox}>
