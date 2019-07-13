@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Dropdown from './Dropdown'
 import { useDispatch } from 'react-redux'
-import { submitPaste } from './state/slices/pastes'
+import { submitPaste } from '../../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   container: {
