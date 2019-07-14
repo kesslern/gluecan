@@ -2,6 +2,7 @@ import { batchActions } from 'redux-batched-actions'
 import { createSlice } from 'redux-starter-kit'
 import { setPastes, loadingPastes } from './pastes'
 import { push } from 'connected-react-router'
+import { useSelector } from 'react-redux'
 
 const auth = createSlice({
   slice: 'auth',
@@ -49,7 +50,9 @@ export function preLogin() {
  */
 export function login(password) {
   return dispatch => {
-    const options = { headers: { 'X-Auth': password } }
+    const options = {
+      headers: { 'X-Auth': password },
+    }
 
     dispatch(loadingPastes())
     fetch('/api/pastes', options)
@@ -61,6 +64,14 @@ export function login(password) {
         dispatch(failure())
       })
   }
+}
+
+/**
+ * A custom hook getting basic authentication status.
+ * @returns {boolean} - True/False indicating authentication status.
+ */
+export function useAuthentication() {
+  return useSelector(state => state.auth.authenticated)
 }
 
 export default auth.reducer

@@ -11,6 +11,7 @@ import { makeStyles } from '@material-ui/styles'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import New from './routes/new/New'
 import Navbar from './common/Navbar'
+import { useAuthentication } from './state/slices/auth'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
@@ -35,8 +36,21 @@ const useStyles = makeStyles(theme => ({
 }))
 
 function App() {
+  const authenticated = useAuthentication()
   const location = useSelector(state => state.router.location)
   const classes = useStyles()
+
+  const routes = [
+    <Route key="login" exact path="/login" component={LoginForm} />,
+  ]
+
+  if (authenticated) {
+    routes.push(<Route key="pasteid" path="/pastes/:id" component={Pastes} />)
+    routes.push(<Route key="pastes" path="/pastes" component={Pastes} />)
+    routes.push(<Route key="" path="/new" component={New} />)
+  }
+
+  const redirect = <Redirect to={authenticated ? '/pastes' : 'login'} />
 
   return (
     <div className={classes.appRoot}>
@@ -47,11 +61,8 @@ function App() {
           <CSSTransition key={location.key} classNames="fade" timeout={1000}>
             <div>
               <Switch location={location}>
-                <Route path="/pastes/:id" component={Pastes} />
-                <Route path="/pastes" component={Pastes} />
-                <Route path="/new" component={New} />
-                <Route exact path="/login" component={LoginForm} />
-                <Redirect to="/pastes" />
+                {routes}
+                {redirect}
               </Switch>
             </div>
           </CSSTransition>

@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import { useSelector } from 'react-redux'
+import { useAuthentication } from '../state/slices/auth'
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
@@ -70,6 +71,7 @@ function getIndex(location) {
 }
 
 function Navbar() {
+  const authenticated = useAuthentication()
   const location = useSelector(state => state.router.location)
   const [hoverIndex, setHoverIndex] = useState(0)
   const [hoverActive, setHoverActive] = useState(false)
@@ -88,26 +90,28 @@ function Navbar() {
     <AppBar position="static">
       <Toolbar variant="dense" className={classes.toolBar}>
         <Typography variant="h6">GlueCan</Typography>
-        <div
-          className={classes.buttonContainer}
-          onMouseLeave={handleHover(false)}
-          onMouseEnter={handleHover(true)}
-        >
-          <Button
-            component={LinkToPastes}
-            onMouseEnter={handleHover(0)}
-            color="inherit"
+        {authenticated && (
+          <div
+            className={classes.buttonContainer}
+            onMouseLeave={handleHover(false)}
+            onMouseEnter={handleHover(true)}
           >
-            Pastes
-          </Button>
-          <Button
-            component={LinkToNew}
-            onMouseEnter={handleHover(1)}
-            color="inherit"
-          >
-            New
-          </Button>
-        </div>
+            <Button
+              component={LinkToPastes}
+              onMouseEnter={handleHover(0)}
+              color="inherit"
+            >
+              Pastes
+            </Button>
+            <Button
+              component={LinkToNew}
+              onMouseEnter={handleHover(1)}
+              color="inherit"
+            >
+              New
+            </Button>
+          </div>
+        )}
       </Toolbar>
     </AppBar>
   )
