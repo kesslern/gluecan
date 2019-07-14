@@ -2,10 +2,11 @@ import React, { useCallback, useState } from 'react'
 import makeStyles from '@material-ui/styles/makeStyles'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
 import Dropdown from './Dropdown'
 import { useDispatch } from 'react-redux'
 import { submitPaste } from '../../state/slices/pastes'
-import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -20,6 +21,10 @@ const useStyles = makeStyles(theme => ({
     resize: 'none',
     width: '100%',
     flexGrow: 1,
+    '& .MuiInputBase-root, .MuiInputBase-input': {
+      height: '100% !important',
+      overflowY: 'auto !important',
+    },
   },
   header: {
     display: 'flex',
@@ -61,10 +66,12 @@ function New() {
         <Typography variant="h5">Add a new paste</Typography>
         <Dropdown onSelect={setLanguage} />
       </section>
-      <textarea
+      <TextField
+        multiline
         className={classes.textarea}
         onChange={handleChange}
-        placeholder="Your text here..."
+        variant="outlined"
+        label="Your text here..."
       />
       <Button
         className={classes.button}
