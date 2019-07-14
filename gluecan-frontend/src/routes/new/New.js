@@ -40,12 +40,17 @@ const useStyles = makeStyles(theme => ({
 function New() {
   const [text, updateText] = useState('')
   const [language, setLanguage] = useState(null)
+  const [submitFailure, setSubmitFailure] = useState(false)
   const dispatch = useDispatch()
   const classes = useStyles()
 
   function handleSubmit(e) {
     e.preventDefault()
-    dispatch(submitPaste({ text, language }))
+    if (text.trim() === '') {
+      setSubmitFailure(true)
+    } else {
+      dispatch(submitPaste({ text, language }))
+    }
   }
 
   const handleChange = useCallback(
@@ -72,6 +77,8 @@ function New() {
         onChange={handleChange}
         variant="outlined"
         label="Your text here..."
+        helperText={submitFailure && 'Text cannot be empty.'}
+        error={submitFailure}
       />
       <Button
         className={classes.button}
