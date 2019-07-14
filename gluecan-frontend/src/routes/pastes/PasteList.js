@@ -13,6 +13,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import Share from '@material-ui/icons/Share'
 import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
+import languages from '../../data/languages'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,6 +23,18 @@ const useStyles = makeStyles(theme => ({
     overflowY: 'auto',
   },
 }))
+
+function buildSecondaryText(paste) {
+  const viewsText = paste.views === 1 ? '1 view' : `${paste.views} views`
+  let languageText = ''
+  if (paste.language) {
+    const { label } = languages.find(
+      language => language.language === paste.language
+    ) || { label: paste.language }
+    languageText = `${label}, `
+  }
+  return languageText + viewsText
+}
 
 export default function PasteList({ selected }) {
   const [showSnackbar, toggleSnackbar] = useToggle(false)
@@ -63,19 +76,7 @@ export default function PasteList({ selected }) {
           >
             <ListItemText
               primary={`Paste #${paste.id}`}
-              secondary={
-                paste.views === 1 ? (
-                  <>
-                    {paste.language && paste.language + ', '}
-                    {paste.views} view
-                  </>
-                ) : (
-                  <>
-                    {paste.language && paste.language + ', '}
-                    {paste.views} views
-                  </>
-                )
-              }
+              secondary={buildSecondaryText(paste)}
             />
             <ListItemSecondaryAction>
               <IconButton
