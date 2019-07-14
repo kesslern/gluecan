@@ -7,15 +7,18 @@
     "@material-ui/icons": "^4.2.1",
     "autosuggest-highlight": "^3.1.1",
     "connected-react-router": "^6.3.1",
+    "history": "^4.9.0",
     "lodash": "^4.17.14",
     "react": "^16.8.6",
     "react-autosuggest": "^9.4.3",
     "react-dom": "^16.8.6",
     "react-redux": "^7.1.0",
+    "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
     "react-transition-group": "^4.2.0",
     "react-use-toggle": "^0.1.0",
+    "redux": "^4.0.4",
     "redux-batched-actions": "^0.4.1",
     "redux-starter-kit": "^0.5.1",
     "redux-thunk": "^2.3.0"
@@ -41,11 +44,15 @@
       "last 1 safari version"
     ]
   },
+  "resolutions": {
+    "lodash.template": ">=4.5.0"
+  },
   "devDependencies": {
     "http-proxy-middleware": "^0.19.1",
     "husky": "^2.7.0",
     "prettier": "1.18.2",
-    "pretty-quick": "^1.11.1"
+    "pretty-quick": "^1.11.1",
+    "typescript": "^3.5.3"
   },
   "husky": {
     "hooks": {
