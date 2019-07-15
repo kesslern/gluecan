@@ -5,17 +5,15 @@ import AppBar from '@material-ui/core/AppBar'
 import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
 import { useSelector } from 'react-redux'
 import { useAuthentication } from '../state/slices/auth'
+import ArrowBack from '@material-ui/icons/ArrowBackIos'
+import { useDrawer } from '../state/slices/drawer'
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
     position: 'relative',
-  },
-  toolBar: {
-    '& h6': {
-      flexGrow: 1,
-    },
     '& .MuiButtonBase-root': {
       zIndex: 3,
       width: theme.spacing(10),
@@ -24,7 +22,19 @@ const useStyles = makeStyles(theme => ({
       transition: 'border 0s',
       height: theme.spacing(6),
     },
-    '& >:nth-child(2):before': {
+  },
+  backIcon: {
+    color: 'white',
+    marginRight: 'auto',
+    marginLeft: ({ drawerOpen }) => theme.spacing(drawerOpen ? 20 : 0),
+    transitionProperty: 'margin-left, transform, opacity',
+    transition: '.3s linear',
+    transform: ({ drawerOpen }) => `rotate(${drawerOpen ? 0 : -180}deg)`,
+    opacity: ({ drawerVisible }) => (drawerVisible ? 1 : 0),
+  },
+  toolBar: {
+    paddingLeft: 0,
+    '& >:nth-child(3):before': {
       zIndex: 2,
       visibility: ({ idx }) => (idx ? 'visible' : 'none'),
       content: '""',
@@ -36,7 +46,7 @@ const useStyles = makeStyles(theme => ({
       borderBottom: '3px solid white',
       transition: 'left .1s linear',
     },
-    '& >:nth-child(2):after': {
+    '& >:nth-child(3):after': {
       zIndex: 1,
       visibility: ({ hoverActive }) => (hoverActive ? 'visible' : 'none'),
       content: '""',
@@ -71,12 +81,19 @@ function getIndex(location) {
 }
 
 function Navbar() {
+  const { open: show, toggleOpen: toggle, display } = useDrawer()
   const authenticated = useAuthentication()
   const location = useSelector(state => state.router.location)
   const [hoverIndex, setHoverIndex] = useState(0)
   const [hoverActive, setHoverActive] = useState(false)
   const idx = getIndex(location.pathname)
-  const classes = useStyles({ idx, hoverActive, hoverIndex })
+  const classes = useStyles({
+    idx,
+    hoverActive,
+    hoverIndex,
+    drawerOpen: show,
+    drawerVisible: display,
+  })
 
   const handleHover = value => () => {
     if (value !== true && value !== false) {
@@ -90,6 +107,14 @@ function Navbar() {
     <AppBar position="static">
       <Toolbar variant="dense" className={classes.toolBar}>
         <Typography variant="h6">GlueCan</Typography>
+        <IconButton
+          aria-label="Close list panel"
+          className={classes.backIcon}
+          onClick={toggle}
+        >
+          <ArrowBack />
+        </IconButton>
+
         {authenticated && (
           <div
             className={classes.buttonContainer}

@@ -7,10 +7,13 @@ import { push } from 'connected-react-router'
 import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
 import PasteListItem from './PasteListItem'
+import { useDrawer } from '../../state/slices/drawer'
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: 300,
+    marginLeft: ({ drawerOpen }) => (drawerOpen ? 0 : -300),
+    transition: 'margin-left .3s linear',
     backgroundColor: theme.palette.background.paper,
     height: '100%',
     overflowY: 'auto',
@@ -18,8 +21,9 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function PasteList({ selected }) {
+  const { open: drawerOpen } = useDrawer()
   const [showSnackbar, toggleSnackbar] = useToggle(false)
-  const classes = useStyles()
+  const classes = useStyles({ drawerOpen })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
 

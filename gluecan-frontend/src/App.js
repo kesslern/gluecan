@@ -50,7 +50,7 @@ function App() {
     routes.push(<Route key="" path="/new" component={New} />)
   }
 
-  const redirect = <Redirect to={authenticated ? '/pastes' : 'login'} />
+  const redirect = <Redirect to={authenticated ? '/pastes' : '/login'} />
 
   return (
     <div className={classes.appRoot}>

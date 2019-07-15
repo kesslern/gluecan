@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setPastes, viewedPaste } from '../../state/slices/pastes'
 import { push } from 'connected-react-router'
 import { Fade } from '@material-ui/core'
+import { useAuthentication } from '../../state/slices/auth'
 
 const useStyles = makeStyles(theme => ({
   pasteContainer: {
@@ -28,7 +29,7 @@ export default function Pastes({ match }) {
   const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
-  const authenticated = useSelector(state => state.auth.authenticated)
+  const authenticated = useAuthentication()
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
   const handleIframeLoaded = useCallback(
