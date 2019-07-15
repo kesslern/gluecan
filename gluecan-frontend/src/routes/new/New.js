@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
       height: '100% !important',
       overflowY: 'auto !important',
     },
+    '& textarea': {
+      fontFamily: "'Ubuntu Mono', monospace",
+    },
   },
   header: {
     display: 'flex',
