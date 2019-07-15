@@ -7,6 +7,9 @@ const pastes = createSlice({
   initialState: null,
   reducers: {
     loading: () => 'loading',
+    add: (state, action) => {
+      state.push(action.payload)
+    },
     set: (_, action) => action.payload,
     viewed: (state, action) => {
       state.find(it => it.id === action.payload).views++
@@ -18,7 +21,7 @@ const pastes = createSlice({
 })
 
 const {
-  actions: { set, loading, delete: deleteAction, viewed },
+  actions: { set, loading, delete: deleteAction, viewed, add },
 } = pastes
 
 export function deletePaste(id) {
@@ -46,11 +49,16 @@ export function submitPaste({ text, language }) {
     })
       .then(it => it.text())
       .then(id => {
-        fetch('/api/pastes')
-          .then(it => it.json())
-          .then(it => {
-            dispatch(batchActions([set(it), push(`/pastes/${id}`)]))
-          })
+        dispatch(
+          batchActions([
+            add({
+              id: parseInt(id, 10),
+              language,
+              views: 0,
+            }),
+            push(`/pastes/${id}`),
+          ])
+        )
       })
   }
 }
