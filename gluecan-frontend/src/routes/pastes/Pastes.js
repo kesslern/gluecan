@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Pastes({ match }) {
-  const routeId = parseInt(match.params.id) || null
+  const routeId = parseInt(match && match.params.id) || null
   const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)

@@ -3,12 +3,12 @@ import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './routes/login/LoginForm'
 import Pastes from './routes/pastes/Pastes'
-import { Route, Redirect, Switch } from 'react-router-dom'
+import { Route, Redirect } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import history from './state/history'
 import { ConnectedRouter } from 'connected-react-router'
 import { makeStyles } from '@material-ui/styles'
-import { TransitionGroup, CSSTransition } from 'react-transition-group'
+import { CSSTransition } from 'react-transition-group'
 import New from './routes/new/New'
 import Navbar from './common/Navbar'
 import { useAuthentication } from './state/slices/auth'
@@ -40,14 +40,11 @@ function App() {
   const location = useSelector(state => state.router.location)
   const classes = useStyles()
 
-  const routes = [
-    <Route key="login" exact path="/login" component={LoginForm} />,
-  ]
+  const routes = [{ key: 'login', path: '/login', Component: LoginForm }]
 
   if (authenticated) {
-    routes.push(<Route key="pasteid" path="/pastes/:id" component={Pastes} />)
-    routes.push(<Route key="pastes" path="/pastes" component={Pastes} />)
-    routes.push(<Route key="" path="/new" component={New} />)
+    routes.push({ path: '/pastes/:id?', Component: Pastes })
+    routes.push({ path: '/new', Component: New })
   }
 
   const redirect = <Redirect to={authenticated ? '/pastes' : '/login'} />
@@ -57,16 +54,25 @@ function App() {
       <CssBaseline />
       <ConnectedRouter history={history}>
         <Navbar />
-        <TransitionGroup className={classes.contentBox}>
-          <CSSTransition key={location.key} classNames="fade" timeout={1000}>
-            <div>
-              <Switch location={location}>
-                {routes}
-                {redirect}
-              </Switch>
-            </div>
-          </CSSTransition>
-        </TransitionGroup>
+        <section className={classes.contentBox}>
+          {routes.map(({ path, Component }) => (
+            <Route key={path} path={path} exact>
+              {({ match }) => (
+                <CSSTransition
+                  in={match != null}
+                  timeout={250}
+                  classNames="fade"
+                  unmountOnExit
+                >
+                  <div>
+                    <Component match={match} />
+                  </div>
+                </CSSTransition>
+              )}
+            </Route>
+          ))}
+        </section>
+        {redirect}
       </ConnectedRouter>
     </div>
   )
