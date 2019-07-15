@@ -115,6 +115,7 @@ fun main() {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>GlueCan #${paste.id}</title>
+        <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet"/>
         <link rel="stylesheet" href="/solarized-light.css">
         <script src="/highlight.pack.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
@@ -132,7 +133,7 @@ fun main() {
         </script>
         <style>
           pre, body { margin: 0; padding: 0 }
-          html, pre, body, code { box-sizing: border-box; min-height: 100vh; width: 100% }
+          html, pre, body, code { box-sizing: border-box; min-height: 100vh; width: 100%, font-family: 'Ubuntu Mono', monospace }
           #paste {
             padding-left: 0;
           }
