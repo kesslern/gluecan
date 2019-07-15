@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     width: 300,
     marginLeft: ({ drawerOpen }) => (drawerOpen ? 0 : -300),
-    transition: 'margin-left .3s linear',
+    transition: 'margxxin-left .3s linear',
     backgroundColor: theme.palette.background.paper,
     height: '100%',
     overflowY: 'auto',

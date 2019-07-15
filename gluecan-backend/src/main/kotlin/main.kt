@@ -30,7 +30,7 @@ object Config {
     val adminPass = System.getProperty("gluecan.pass", "change_me")
     val public = System.getProperty("gluecan.public", "false").toLowerCase() == "true"
     val database = "jdbc:sqlite:gluecan"
-    val keystorePath: String?  = System.getProperty("gluecan.keystorePath")
+    val keystorePath: String? = System.getProperty("gluecan.keystorePath")
     val keystorePassword: String? = System.getProperty("gluecan.keystorePassword")
 }
 
@@ -100,9 +100,13 @@ fun main() {
     }
 
     app.get("/api/pastes", { ctx ->
-        transaction {
-            ctx.dboToJson(PasteDBO.all())
-        }
+        val result = transaction { PasteDBO.all().map { it.toData() } }
+            .map { it.copy(text = null) }
+
+        ctx.json(
+            result
+        )
+
     }, roles(MyRole.AUTHENTICATED))
 
     fun template(paste: Paste) = """
@@ -241,7 +245,7 @@ data class Paste(
     val id: Int,
     val views: Int?,
     val language: String?,
-    val text: String
+    val text: String?
 )
 
 object PastesTable : IntIdTable() {
