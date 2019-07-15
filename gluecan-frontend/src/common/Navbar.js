@@ -33,7 +33,6 @@ const useStyles = makeStyles(theme => ({
     opacity: ({ drawerVisible }) => (drawerVisible ? 1 : 0),
   },
   toolBar: {
-    paddingLeft: 0,
     '& >:nth-child(3):before': {
       zIndex: 2,
       visibility: ({ idx }) => (idx ? 'visible' : 'none'),
