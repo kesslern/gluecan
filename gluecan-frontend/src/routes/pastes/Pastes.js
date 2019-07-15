@@ -26,11 +26,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function Pastes({ match }) {
   const routeId = parseInt(match && match.params.id) || null
-  const classes = useStyles()
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
   const authenticated = useAuthentication()
   const [iframeLoaded, setIframeLoaded] = useState(false)
+  const classes = useStyles()
+
+  useEffect(() => {
+    setIframeLoaded(false)
+  }, [setIframeLoaded, routeId])
 
   const handleIframeLoaded = useCallback(
     id => () => {

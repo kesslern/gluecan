@@ -37,7 +37,6 @@ const useStyles = makeStyles(theme => ({
 
 function App() {
   const authenticated = useAuthentication()
-  const location = useSelector(state => state.router.location)
   const classes = useStyles()
 
   const routes = [{ key: 'login', path: '/login', Component: LoginForm }]
@@ -56,7 +55,7 @@ function App() {
         <Navbar />
         <section className={classes.contentBox}>
           {routes.map(({ path, Component }) => (
-            <Route key={path} path={path} exact>
+            <Route key={path} path={path}>
               {({ match }) => (
                 <CSSTransition
                   in={match != null}
