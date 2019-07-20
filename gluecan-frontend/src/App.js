@@ -4,8 +4,6 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './routes/login/LoginForm'
 import Pastes from './routes/pastes/Pastes'
 import { Route, Redirect } from 'react-router-dom'
-import history from './state/history'
-import { ConnectedRouter } from 'connected-react-router'
 import { makeStyles } from '@material-ui/styles'
 import { CSSTransition } from 'react-transition-group'
 import New from './routes/new/New'
@@ -18,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     '&> *': {
       position: 'absolute',
       width: '100%',
-      top: theme.spacing(8),
+      top: theme.spacing(7),
       bottom: 0,
       left: 0,
       right: 0,
@@ -30,7 +28,7 @@ const useStyles = makeStyles(theme => ({
   appRoot: {
     display: 'flex',
     flexDirection: 'column',
-    minHeight: '100vh',
+    height: '100vh',
   },
 }))
 
@@ -50,28 +48,26 @@ function App() {
   return (
     <div className={classes.appRoot}>
       <CssBaseline />
-      <ConnectedRouter history={history}>
-        <Navbar />
-        <section className={classes.contentBox}>
-          {routes.map(({ path, Component }) => (
-            <Route key={path} path={path}>
-              {({ match }) => (
-                <CSSTransition
-                  in={match != null}
-                  timeout={250}
-                  classNames="fade"
-                  unmountOnExit
-                >
-                  <div>
-                    <Component match={match} />
-                  </div>
-                </CSSTransition>
-              )}
-            </Route>
-          ))}
-        </section>
-        {redirect}
-      </ConnectedRouter>
+      <Navbar />
+      <section className={classes.contentBox}>
+        {routes.map(({ path, Component }) => (
+          <Route key={path} path={path}>
+            {({ match }) => (
+              <CSSTransition
+                in={match != null}
+                timeout={250}
+                classNames="fade"
+                unmountOnExit
+              >
+                <div>
+                  <Component match={match} />
+                </div>
+              </CSSTransition>
+            )}
+          </Route>
+        ))}
+      </section>
+      {redirect}
     </div>
   )
 }

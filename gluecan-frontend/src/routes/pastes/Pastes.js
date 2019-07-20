@@ -5,8 +5,9 @@ import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
 import { setPastes, viewedPaste } from '../../state/slices/pastes'
 import { push } from 'connected-react-router'
-import { Fade } from '@material-ui/core'
 import { useAuthentication } from '../../state/slices/auth'
+import { Route } from 'react-router-dom'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
 const useStyles = makeStyles(theme => ({
   pasteContainer: {
@@ -17,10 +18,15 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     flexGrow: 1,
   },
-  iframe: {
+  iframeContainer: {
+    height: '100%',
     flexGrow: 1,
+    display: 'flex',
+  },
+  iframe: {
     border: 'none',
     height: '100%',
+    flexGrow: 1,
   },
 }))
 
@@ -29,20 +35,7 @@ export default function Pastes({ match }) {
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
   const authenticated = useAuthentication()
-  const [iframeLoaded, setIframeLoaded] = useState(false)
   const classes = useStyles()
-
-  useEffect(() => {
-    setIframeLoaded(false)
-  }, [setIframeLoaded, routeId])
-
-  const handleIframeLoaded = useCallback(
-    id => () => {
-      dispatch(viewedPaste(id))
-      setIframeLoaded(true)
-    },
-    [setIframeLoaded, dispatch]
-  )
 
   useEffect(() => {
     if (pastes === null) {
@@ -58,28 +51,41 @@ export default function Pastes({ match }) {
     }
   }, [pastes, dispatch])
 
-  useEffect(() => {
-    if (!routeId) {
-      setIframeLoaded(false)
-    }
-  }, [routeId, setIframeLoaded])
-
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
-      {routeId && (
-        <Fade in={iframeLoaded}>
-          <Paper
-            component={'iframe'}
-            className={classes.iframe}
-            title="Content"
-            src={`/view/${routeId}`}
-            onLoad={handleIframeLoaded(routeId)}
-          />
-        </Fade>
-      )}
+      <TransitionGroup className={classes.iframeContainer}>
+        <Route exact path="/pastes/:id">
+          {({ match }) => (match ? <PasteView id={match.params.id} /> : null)}
+        </Route>
+      </TransitionGroup>
     </div>
   ) : (
     authenticated && <h2>There are no pastes.</h2>
+  )
+}
+
+function PasteView({ id }) {
+  const classes = useStyles()
+  const [loaded, setLoaded] = useState(false)
+
+  function onLoad() {
+    setLoaded(true)
+  }
+  function onExit() {
+    setLoaded(false)
+  }
+
+  useEffect(() => setLoaded(false), [id])
+
+  return (
+    <CSSTransition in={loaded} timeout={250} classNames="fade" onExit={onExit}>
+      <iframe
+        className={classes.iframe}
+        title="Content"
+        src={`/view/${id}`}
+        onLoad={onLoad}
+      />
+    </CSSTransition>
   )
 }

@@ -6,11 +6,15 @@ import { Provider } from 'react-redux'
 import store from './state/store'
 import { ThemeProvider } from '@material-ui/styles'
 import { createMuiTheme } from '@material-ui/core/styles'
+import history from './state/history'
+import { ConnectedRouter } from 'connected-react-router'
 
 ReactDOM.render(
   <ThemeProvider theme={createMuiTheme()}>
     <Provider store={store}>
-      <App />
+      <ConnectedRouter history={history}>
+        <App />
+      </ConnectedRouter>
     </Provider>
   </ThemeProvider>,
   document.getElementById('root')
