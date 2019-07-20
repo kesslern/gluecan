@@ -13,6 +13,10 @@
   z-index: -1;
 }
 
+.fade-exit-done {
+  opacity: 0;
+}
+
 .fade-exit.fade-exit-active {
   opacity: 0;
   transition: opacity 250ms ease-in;

@@ -18,13 +18,18 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   iframeContainer: {
+    position: 'relative',
     height: '100%',
     flexGrow: 1,
     display: 'flex',
+    '& >*': {
+      position: 'absolute',
+    },
   },
   iframe: {
     border: 'none',
     height: '100%',
+    width: '100%',
     flexGrow: 1,
   },
 }))
@@ -35,6 +40,7 @@ export default function Pastes({ match }) {
   const pastes = useSelector(state => state.pastes)
   const authenticated = useAuthentication()
   const classes = useStyles()
+  const [state, setState] = useState({ one: null, two: null, active: null })
 
   useEffect(() => {
     if (pastes === null) {
@@ -50,20 +56,51 @@ export default function Pastes({ match }) {
     }
   }, [pastes, dispatch])
 
+  useEffect(() => {
+    const { one, two, active } = state
+    if (active === null && routeId) {
+      setState({
+        one: routeId,
+        two: null,
+        active: 'one',
+      })
+    } else if (active === 'one' && routeId !== one) {
+      setState({
+        one: one,
+        two: routeId,
+        active: 'two',
+      })
+    } else if (active === 'two' && routeId !== two) {
+      setState({
+        one: routeId,
+        two: two,
+        active: 'one',
+      })
+    }
+  }, [setState, routeId, state])
+
+  useEffect(() => {
+    console.log(state)
+  }, [state])
+
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
-      <TransitionGroup className={classes.iframeContainer}>
-        <Route exact path="/pastes/:id" component={PasteView} />
-      </TransitionGroup>
+      <section className={classes.iframeContainer}>
+        {state.one && (
+          <PasteView active={state.active === 'one'} id={state.one} />
+        )}
+        {state.two && (
+          <PasteView active={state.active === 'two'} id={state.two} />
+        )}
+      </section>
     </div>
   ) : (
     authenticated && <h2>There are no pastes.</h2>
   )
 }
 
-function PasteView({ match }) {
-  const id = match.params.id
+function PasteView({ id, active }) {
   const classes = useStyles()
   const dispatch = useDispatch()
   const [loaded, setLoaded] = useState(false)
@@ -79,7 +116,12 @@ function PasteView({ match }) {
   useEffect(() => setLoaded(false), [id])
 
   return (
-    <CSSTransition in={loaded} timeout={250} classNames="fade" onExit={onExit}>
+    <CSSTransition
+      in={loaded && active}
+      timeout={250}
+      classNames="fade"
+      onExit={onExit}
+    >
       <iframe
         className={classes.iframe}
         title="Content"
