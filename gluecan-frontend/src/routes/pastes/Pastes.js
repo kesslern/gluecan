@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import Paper from '@material-ui/core/Paper'
+import React, { useEffect, useState } from 'react'
 import PasteList from './PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
@@ -55,9 +54,7 @@ export default function Pastes({ match }) {
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
       <TransitionGroup className={classes.iframeContainer}>
-        <Route exact path="/pastes/:id">
-          {({ match }) => (match ? <PasteView id={match.params.id} /> : null)}
-        </Route>
+        <Route exact path="/pastes/:id" component={PasteView} />
       </TransitionGroup>
     </div>
   ) : (
@@ -65,11 +62,14 @@ export default function Pastes({ match }) {
   )
 }
 
-function PasteView({ id }) {
+function PasteView({ match }) {
+  const id = match.params.id
   const classes = useStyles()
+  const dispatch = useDispatch()
   const [loaded, setLoaded] = useState(false)
 
   function onLoad() {
+    dispatch(viewedPaste(parseInt(id)))
     setLoaded(true)
   }
   function onExit() {
