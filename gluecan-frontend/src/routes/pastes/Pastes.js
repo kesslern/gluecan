@@ -75,6 +75,13 @@ export default function Pastes({ match }) {
         two: two,
         active: 'one',
       })
+    } else if (active && !routeId) {
+      // Active was deleted
+      setState({
+        one: null,
+        two: null,
+        active: null,
+      })
     }
   }, [setState, routeId, state])
 

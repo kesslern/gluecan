@@ -1,5 +1,5 @@
 import { createSlice } from 'redux-starter-kit'
-import { goBack, push } from 'connected-react-router'
+import { push, replace } from 'connected-react-router'
 import { batchActions } from 'redux-batched-actions'
 
 const pastes = createSlice({
@@ -32,7 +32,7 @@ export function deletePaste(id) {
     const toDispatch = [deleteAction(id)]
 
     if (getState().router.location.pathname === `/pastes/${id}`) {
-      toDispatch.push(goBack())
+      toDispatch.push(replace('/pastes'))
     }
 
     dispatch(batchActions(toDispatch))
