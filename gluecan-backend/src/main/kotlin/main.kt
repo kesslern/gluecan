@@ -46,8 +46,10 @@ class Templater() {
         return javaClass
             .getResource("/template.html")
             .readText()
-            .replace("{{pasteHtml}}", paste.toHtml())
+            .replace("{{pasteId}}", paste.id.toString())
             .replace("{{class}}", paste.language ?: "")
+            .replace("{{pasteHtml}}", paste.toHtml())
+
     }
 }
 

@@ -15,7 +15,7 @@
       hljs.initLineNumbersOnLoad();
 
       let text;
-      fetch("/api/pastes/${paste.id}/raw")
+      fetch("/api/pastes/{{pasteId}}/raw")
         .then(response => response.text())
         .then(data => {
           text = data;
