@@ -41,7 +41,18 @@ private fun getSslContextFactory(): SslContextFactory.Server {
     return sslContextFactory
 }
 
+class Templater() {
+    fun template(paste: Paste): String {
+        return javaClass
+            .getResource("/template.html")
+            .readText()
+            .replace("{{pasteHtml}}", paste.toHtml())
+            .replace("{{class}}", paste.language ?: "")
+    }
+}
+
 fun main() {
+    val templater = Templater()
     val log = LoggerFactory.getLogger("main")
     val flyway = Flyway.configure().dataSource(Config.database, "su", null).load()
     flyway.migrate()
@@ -109,76 +120,6 @@ fun main() {
 
     }, roles(MyRole.AUTHENTICATED))
 
-    fun template(paste: Paste) = """
-        <html>
-        <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>GlueCan #${paste.id}</title>
-        <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet"/>
-        <link rel="stylesheet" href="/solarized-light.css">
-        <script src="/highlight.pack.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
-        <script>
-          hljs.initHighlightingOnLoad();
-          hljs.initLineNumbersOnLoad();
-          
-          let text
-          fetch('/api/pastes/${paste.id}/raw')
-            .then(response => response.text())
-            .then(data => text = data)
-          function copyToClipboard() {
-            navigator.clipboard.writeText(text)
-          }
-        </script>
-        <style>
-          pre, body { margin: 0; padding: 0 }
-          html, pre, body, code { box-sizing: border-box; min-height: 100vh; width: 100%, font-family: 'Ubuntu Mono', monospace }
-          #paste {
-            padding-left: 0;
-          }
-          td.hljs-ln-numbers {
-            text-align: right;
-            border-right: 1px solid black;
-            padding: 0 3px;
-            color: #859900;
-          }
-          td.hljs-ln-code {
-            padding-left: 3px;
-	        white-space: pre-wrap;
-          }
-          button {
-            border-radius: 3px;
-            color: #626262;
-            font-size: 20px;
-            background: #e4e4e4;
-            padding: 8px 16px;
-            text-decoration: none;
-            position: fixed;
-            bottom: 0;
-            right: 0;
-          }
-          button.hover {
-            background: #3cb0fd;
-            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
-            text-decoration: none;
-          }
-          code {
-            padding-bottom: 45px !important;
-          }
-        </style>
-        </head>
-        <body>
-        <button onClick="copyToClipboard()">Copy</button>
-        <pre><code id="paste" class="hljs ${paste.language ?: ""}">${paste.toHtml()}</pre></code>
-        </body>
-        </html>
-        """.trimIndent()
-
     app.get("/api/pastes/:id/raw") { ctx ->
         val paste = transaction {
             val id = ctx.pathParam(":id").toInt()
@@ -209,7 +150,7 @@ fun main() {
             ctx.status(410)
         } else {
             ctx.contentType("text/html")
-            ctx.result(template(paste.toData()))
+            ctx.result(templater.template(paste.toData()))
         }
     }
 
