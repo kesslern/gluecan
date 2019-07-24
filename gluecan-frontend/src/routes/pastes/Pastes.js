@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import PasteList from './PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector, useDispatch } from 'react-redux'
-import { setPastes, viewedPaste } from '../../state/slices/pastes'
-import { push } from 'connected-react-router'
+import { viewedPaste } from '../../state/slices/pastes'
 import { useAuthentication } from '../../state/slices/auth'
 
 const useStyles = makeStyles(theme => ({
@@ -35,25 +34,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function Pastes({ match }) {
   const routeId = parseInt(match && match.params.id) || null
-  const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
   const authenticated = useAuthentication()
   const classes = useStyles()
   const [state, setState] = useState({ one: null, two: null, active: null })
-
-  useEffect(() => {
-    if (pastes === null) {
-      fetch('/api/pastes')
-        .then(it => it.json())
-        .then(it => {
-          dispatch(setPastes(it))
-        })
-        .catch(e => {
-          console.log(e)
-          dispatch(push('/login'))
-        })
-    }
-  }, [pastes, dispatch])
 
   useEffect(() => {
     const { one, two, active } = state
@@ -84,10 +68,6 @@ export default function Pastes({ match }) {
       })
     }
   }, [setState, routeId, state])
-
-  useEffect(() => {
-    console.log(state)
-  }, [state])
 
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <div className={classes.pasteContainer}>

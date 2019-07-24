@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import LoginForm from './routes/login/LoginForm'
@@ -8,7 +8,8 @@ import { makeStyles } from '@material-ui/styles'
 import { CSSTransition } from 'react-transition-group'
 import New from './routes/new/New'
 import Navbar from './common/Navbar'
-import { useAuthentication } from './state/slices/auth'
+import { useAuthentication, login } from './state/slices/auth'
+import { useDispatch, useSelector } from 'react-redux'
 
 const useStyles = makeStyles(theme => ({
   contentBox: {
@@ -35,39 +36,56 @@ const useStyles = makeStyles(theme => ({
 function App() {
   const authenticated = useAuthentication()
   const classes = useStyles()
+  const dispatch = useDispatch()
+  const { pathname } = useSelector(state => state.router.location)
 
   const routes = [{ key: 'login', path: '/login', Component: LoginForm }]
+
+  useEffect(() => {
+    dispatch(login())
+  }, [dispatch])
 
   if (authenticated) {
     routes.push({ path: '/pastes/:id?', Component: Pastes })
     routes.push({ path: '/new', Component: New })
   }
 
-  const redirect = <Redirect to={authenticated ? '/pastes' : '/login'} />
+  const routeMatching = Boolean(
+    [/^\/login$/, /^\/pastes(\/\d+)?$/, /^\/new$/].find(it =>
+      pathname.match(it)
+    )
+  )
+
+  const routeComponents = routes.map(({ path, Component }) => (
+    <Route key={path} path={path}>
+      {({ match }) => (
+        <CSSTransition
+          in={match != null}
+          timeout={250}
+          classNames="fade"
+          unmountOnExit
+        >
+          <div>
+            <Component match={match} />
+          </div>
+        </CSSTransition>
+      )}
+    </Route>
+  ))
 
   return (
     <div className={classes.appRoot}>
       <CssBaseline />
       <Navbar />
       <section className={classes.contentBox}>
-        {routes.map(({ path, Component }) => (
-          <Route key={path} path={path}>
-            {({ match }) => (
-              <CSSTransition
-                in={match != null}
-                timeout={250}
-                classNames="fade"
-                unmountOnExit
-              >
-                <div>
-                  <Component match={match} />
-                </div>
-              </CSSTransition>
-            )}
-          </Route>
-        ))}
+        {authenticated !== null && (
+          <>
+            {routeComponents}
+            {!routeMatching && <Redirect to="/pastes" />}
+          </>
+        )}
+        {authenticated === false && <Redirect to="/login" />}
       </section>
-      {redirect}
     </div>
   )
 }

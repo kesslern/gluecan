@@ -1,7 +1,6 @@
 import { batchActions } from 'redux-batched-actions'
 import { createSlice } from 'redux-starter-kit'
-import { setPastes, loadingPastes } from './pastes'
-import { push } from 'connected-react-router'
+import { setPastes } from './pastes'
 import { useSelector } from 'react-redux'
 
 const auth = createSlice({
@@ -29,39 +28,28 @@ const {
 } = auth
 
 /**
- * Attempt loading pastes using existing cookie values.
- * Go to '/pastes' on success.
- */
-export function preLogin() {
-  return dispatch => {
-    dispatch(loadingPastes())
-    fetch('/api/pastes')
-      .then(it => it.json())
-      .then(it => {
-        dispatch(batchActions([setPastes(it), success(), push('/pastes')]))
-      })
-      .catch(() => dispatch(unauthenticated()))
-  }
-}
-
-/**
  * Attempt loading pastes with a specific password.
  * Go to '/pastes' on success.
  */
 export function login(password) {
   return dispatch => {
-    const options = {
-      headers: { 'X-Auth': password },
+    const options = {}
+
+    if (password) {
+      options.headers = { 'X-Auth': password }
     }
 
-    dispatch(loadingPastes())
     fetch('/api/pastes', options)
       .then(it => it.json())
       .then(it => {
-        dispatch(batchActions([setPastes(it), success(), push('/pastes')]))
+        dispatch(batchActions([setPastes(it), success()]))
       })
       .catch(() => {
-        dispatch(failure())
+        if (password) {
+          dispatch(failure())
+        } else {
+          dispatch(unauthenticated())
+        }
       })
   }
 }
