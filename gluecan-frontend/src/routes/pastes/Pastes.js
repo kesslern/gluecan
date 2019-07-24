@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setPastes, viewedPaste } from '../../state/slices/pastes'
 import { push } from 'connected-react-router'
 import { useAuthentication } from '../../state/slices/auth'
-import { CSSTransition } from 'react-transition-group'
 
 const useStyles = makeStyles(theme => ({
   pasteContainer: {
@@ -20,16 +19,17 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     height: '100%',
     flexGrow: 1,
-    display: 'flex',
     '& >*': {
       position: 'absolute',
     },
   },
   iframe: {
+    zIndex: ({ active }) => (active ? 1 : -1),
+    opacity: ({ active }) => (active ? 1 : 0),
     border: 'none',
     height: '100%',
     width: '100%',
-    flexGrow: 1,
+    transition: 'opacity 250ms ease-in',
   },
 }))
 
@@ -100,33 +100,23 @@ export default function Pastes({ match }) {
 }
 
 function PasteView({ id, active }) {
-  const classes = useStyles()
   const dispatch = useDispatch()
   const [loaded, setLoaded] = useState(false)
+  const classes = useStyles({ active: loaded && active })
 
   function onLoad() {
     dispatch(viewedPaste(parseInt(id)))
     setLoaded(true)
   }
-  function onExit() {
-    setLoaded(false)
-  }
 
   useEffect(() => setLoaded(false), [id])
 
   return (
-    <CSSTransition
-      in={loaded && active}
-      timeout={250}
-      classNames="fade"
-      onExit={onExit}
-    >
-      <iframe
-        className={classes.iframe}
-        title="Content"
-        src={`/view/${id}`}
-        onLoad={onLoad}
-      />
-    </CSSTransition>
+    <iframe
+      className={classes.iframe}
+      title="Content"
+      src={`/view/${id}`}
+      onLoad={onLoad}
+    />
   )
 }
