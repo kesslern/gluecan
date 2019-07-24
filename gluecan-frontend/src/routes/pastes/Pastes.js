@@ -5,8 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setPastes, viewedPaste } from '../../state/slices/pastes'
 import { push } from 'connected-react-router'
 import { useAuthentication } from '../../state/slices/auth'
-import { Route } from 'react-router-dom'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { CSSTransition } from 'react-transition-group'
 
 const useStyles = makeStyles(theme => ({
   pasteContainer: {
