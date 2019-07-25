@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import List from '@material-ui/core/List'
 import makeStyles from '@material-ui/styles/makeStyles'
 import useToggle from 'react-use-toggle'
@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function PasteList({ selected }) {
+  const ref = useRef(null)
   const { open: drawerOpen } = useDrawer()
   const [showSnackbar, toggleSnackbar] = useToggle(false)
   const classes = useStyles({ drawerOpen })
@@ -34,11 +35,17 @@ export default function PasteList({ selected }) {
     [dispatch]
   )
 
+  useEffect(() => {
+    ref.current &&
+      ref.current.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  }, [ref])
+
   return (
     <>
       <List className={classes.root}>
         {pastes.map(paste => (
           <PasteListItem
+            ref={paste.id === selected ? ref : null}
             key={paste.id}
             selected={paste.id === selected}
             paste={paste}

@@ -23,48 +23,53 @@ function buildSecondaryText(paste) {
   return languageText + viewsText
 }
 
-function PasteListItem({ paste, selected, onLinkCopy }) {
-  const dispatch = useDispatch()
+const PasteListItem = React.forwardRef(
+  ({ paste, selected, onLinkCopy }, ref) => {
+    const dispatch = useDispatch()
 
-  const handleView = useCallback(
-    id => () => {
-      dispatch(push(`/pastes/${id}`))
-    },
-    [dispatch]
-  )
+    const handleView = useCallback(
+      id => () => {
+        dispatch(push(`/pastes/${id}`))
+      },
+      [dispatch]
+    )
 
-  const handleDelete = useCallback(() => {
-    dispatch(deletePaste(paste.id))
-  }, [dispatch, paste])
+    const handleDelete = useCallback(() => {
+      dispatch(deletePaste(paste.id))
+    }, [dispatch, paste])
 
-  const handleLinkCopy = useCallback(() => {
-    navigator.clipboard.writeText(`${window.location.origin}/view/${paste.id}`)
-    onLinkCopy()
-  }, [paste, onLinkCopy])
+    const handleLinkCopy = useCallback(() => {
+      navigator.clipboard.writeText(
+        `${window.location.origin}/view/${paste.id}`
+      )
+      onLinkCopy()
+    }, [paste, onLinkCopy])
 
-  return (
-    <ListItem
-      key={paste.id}
-      selected={selected}
-      button={true}
-      onClick={handleView(paste.id)}
-      divider
-    >
-      <ListItemText
-        primary={`Paste #${paste.id}`}
-        secondary={buildSecondaryText(paste)}
-      />
-      <ListItemSecondaryAction>
-        <IconButton edge="end" aria-label="Share" onClick={handleLinkCopy}>
-          <Share />
-        </IconButton>
-        <IconButton edge="end" aria-label="Delete" onClick={handleDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
-  )
-}
+    return (
+      <ListItem
+        ref={ref}
+        key={paste.id}
+        selected={selected}
+        button={true}
+        onClick={handleView(paste.id)}
+        divider
+      >
+        <ListItemText
+          primary={`Paste #${paste.id}`}
+          secondary={buildSecondaryText(paste)}
+        />
+        <ListItemSecondaryAction>
+          <IconButton edge="end" aria-label="Share" onClick={handleLinkCopy}>
+            <Share />
+          </IconButton>
+          <IconButton edge="end" aria-label="Delete" onClick={handleDelete}>
+            <DeleteIcon />
+          </IconButton>
+        </ListItemSecondaryAction>
+      </ListItem>
+    )
+  }
+)
 
 PasteListItem.propTypes = {
   paste: PropTypes.object.isRequired,
