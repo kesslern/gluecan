@@ -11,7 +11,8 @@ const pastes = createSlice({
     },
     set: (_, action) => action.payload,
     viewed: (state, action) => {
-      state.find(it => it.id === action.payload).views++
+      const paste = state.find(it => it.id === action.payload)
+      paste && paste.views++
     },
     delete: (state, action) => {
       return state.filter(paste => paste.id !== action.payload)
