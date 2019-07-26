@@ -8,6 +8,7 @@ const pastes = createSlice({
   reducers: {
     add: (state, action) => {
       state.push(action.payload)
+      state.sort((a, b) => (a.id > b.id ? 1 : -1))
     },
     set: (_, action) => action.payload,
     viewed: (state, action) => {
