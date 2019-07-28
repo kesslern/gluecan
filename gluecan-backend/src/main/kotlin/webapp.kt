@@ -20,12 +20,11 @@ object Templater {
 
 fun Javalin.gluecan() {
     this.get("/api/pastes", { ctx ->
-        val result = transaction { PasteDBO.all().map { it.toData() } }
-            .map { it.copy(text = null) }
+        val result = transaction {
+            PasteDBO.all().map { it.toData() }
+        }.map { it.copy(text = null) }
 
-        ctx.json(
-            result
-        )
+        ctx.json(result)
 
     }, roles(MyRole.AUTHENTICATED))
 
@@ -78,8 +77,9 @@ fun Javalin.gluecan() {
     }, roles(MyRole.AUTHENTICATED))
 
     this.post("/api/pastes", { ctx ->
-        val id = uniqueId()
+        var id = 0
         transaction {
+            id = uniqueId()
             PastesTable.insert {
                 it[PastesTable.id] = EntityID(id, PastesTable)
                 it[language] = ctx.queryParam("lang")

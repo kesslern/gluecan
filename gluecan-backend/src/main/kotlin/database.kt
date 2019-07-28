@@ -9,7 +9,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.Connection
 import kotlin.random.Random
 
@@ -24,10 +23,8 @@ fun Paste.toHtml(): String = StringEscapeUtils.escapeHtml(this.text)
 
 fun uniqueId(): Int {
     var id = randomId()
-    transaction {
-        while (PasteDBO.findById(id) !== null) {
-            id = randomId()
-        }
+    while (PasteDBO.findById(id) !== null) {
+        id = randomId()
     }
     return id
 }
