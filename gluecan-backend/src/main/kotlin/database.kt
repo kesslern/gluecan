@@ -9,6 +9,8 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.LocalDateTime
 import java.sql.Connection
 import kotlin.random.Random
 
@@ -39,13 +41,15 @@ data class Paste(
     val id: Int,
     val views: Int?,
     val language: String?,
-    val text: String?
+    val text: String?,
+    val date: String
 )
 
 object PastesTable : IntIdTable() {
     val views = integer("views")
     val language = text("language").nullable()
     val text = text("text")
+    val date = datetime("date")
 }
 
 interface DBOToData<T> {
@@ -58,6 +62,15 @@ class PasteDBO(id: EntityID<Int>) : IntEntity(id), DBOToData<Paste> {
     var views by PastesTable.views
     var language by PastesTable.language
     var text by PastesTable.text
+    var date by PastesTable.date
 
-    override fun toData() = Paste(this.id.value, this.views, this.language, this.text)
+    override fun toData() = transaction {
+        Paste(
+            this@PasteDBO.id.value,
+            this@PasteDBO.views,
+            this@PasteDBO.language,
+            this@PasteDBO.text,
+            this@PasteDBO.date.toLocalDateTime().toString() + "+0000"
+        )
+    }
 }
