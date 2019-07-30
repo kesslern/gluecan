@@ -14,24 +14,21 @@
       hljs.initHighlightingOnLoad();
       hljs.initLineNumbersOnLoad();
 
-      let text;
-      fetch("/api/pastes/{{pasteId}}/raw")
-        .then(response => response.text())
-        .then(data => {
-          text = data;
-        });
-      function copyToClipboard() {
-        navigator.clipboard.writeText(text);
-      }
+      const raw = fetch("/api/pastes/{{pasteId}}/raw").then(response =>
+        response.text()
+      );
+      const copyToClipboard = () =>
+        navigator.clipboard.writeText(raw.resolve());
 
       const locale =
         navigator.languages && navigator.languages.length
           ? navigator.languages[0]
           : navigator.language;
+
       window.onload = () => {
-        document.querySelector("#date").innerHTML = new Date(
-          "{{date}}"
-        ).toLocaleString(locale);
+        const date = new Date("{{date}}");
+        const text = date.toLocaleString(locale);
+        document.querySelector("#date").innerHTML = text;
       };
     </script>
     <style>
