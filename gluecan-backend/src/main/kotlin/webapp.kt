@@ -2,6 +2,7 @@ package us.kesslern
 
 import io.javalin.Javalin
 import io.javalin.core.security.SecurityUtil.roles
+import io.javalin.http.Context
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,6 +20,21 @@ object Templater {
     }
 }
 
+fun viewRaw(ctx: Context) {
+    val paste = transaction {
+        val id = ctx.pathParam(":id").toInt()
+        PasteDBO.findById(id)
+    }
+
+    if (paste == null) {
+        ctx.result("Not found")
+        ctx.status(410)
+    } else {
+        ctx.contentType("text/plain")
+        ctx.result(paste.text)
+    }
+}
+
 fun Javalin.gluecan() {
     this.get("/api/pastes", { ctx ->
         val result = transaction {
@@ -29,20 +45,9 @@ fun Javalin.gluecan() {
 
     }, roles(MyRole.AUTHENTICATED))
 
-    this.get("/api/pastes/:id/raw") { ctx ->
-        val paste = transaction {
-            val id = ctx.pathParam(":id").toInt()
-            PasteDBO.findById(id)
-        }
+    this.get("/api/pastes/:id/raw", ::viewRaw)
+    this.get("/view/:id/raw", ::viewRaw)
 
-        if (paste == null) {
-            ctx.result("Not found")
-            ctx.status(410)
-        } else {
-            ctx.contentType("text/plain")
-            ctx.result(paste.text)
-        }
-    }
 
     this.get("/view/:id") { ctx ->
         val paste = transaction {

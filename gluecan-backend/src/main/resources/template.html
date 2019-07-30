@@ -19,6 +19,9 @@
       );
       const copyToClipboard = () =>
         navigator.clipboard.writeText(raw.resolve());
+      const copyURL = () => navigator.clipboard.writeText(window.location.href);
+      const viewRaw = () =>
+        (window.location.href = window.location.href + "/raw");
 
       const locale =
         navigator.languages && navigator.languages.length
@@ -28,7 +31,7 @@
       window.onload = () => {
         const date = new Date("{{date}}");
         const text = date.toLocaleString(locale);
-        document.querySelector("#date").innerHTML = text;
+        document.querySelector("#date").innerHTML = `Created: ${text}`;
       };
     </script>
     <style>
@@ -52,6 +55,9 @@
         height: 2em;
         padding: 0 0.75em;
         font-weight: 600;
+      }
+      #date {
+        margin-left: auto;
       }
       button:hover,
       button:focus {
@@ -94,8 +100,10 @@
   </head>
   <body>
     <header>
-      <div id="date"></div>
       <button onClick="copyToClipboard()">Copy to Clipboard</button>
+      <button onClick="copyURL()">Copy URL</button>
+      <button onClick="viewRaw()">View Raw</button>
+      <div id="date"></div>
     </header>
     <pre><code id="paste" class="hljs {{class}}">{{pasteHtml}}</code></pre>
   </body>
