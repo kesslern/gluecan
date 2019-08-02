@@ -14,7 +14,7 @@ object Templater {
             .readText()
             .replace("{{pasteId}}", paste.id.toString())
             .replace("{{class}}", paste.language ?: "")
-            .replace("{{date}}", paste.date.toString())
+            .replace("{{date}}", paste.date)
             .replace("{{pasteHtml}}", paste.toHtml())
 
     }

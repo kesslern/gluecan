@@ -43,5 +43,6 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed:0.15.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9")
     implementation("commons-lang:commons-lang:2.6")
+    implementation("com.amihaiemil.web:eo-yaml:2.0.1")
     runtime(project(":gluecan-frontend"))
 }

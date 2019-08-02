@@ -16,6 +16,6 @@ fun main() {
 
     app.gluecan()
 
-    app.start(8080)
+    app.start(Config.port)
 }
 

@@ -1,0 +1,15 @@
+port: 8080
+
+# No password required to add/delete if public
+public: false
+
+# Password for administration UI if not public
+adminPass: change_me
+
+# Database name/path
+database: gluecan.sqlite
+
+# Optional keystore for HTTPS
+keystore:
+  path: ~
+  password: ~

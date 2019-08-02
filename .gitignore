@@ -4,3 +4,4 @@
 **/build/
 !gradle-wrapper.jar
 gluecan-backend/gluecan
+**/*.sqlite
