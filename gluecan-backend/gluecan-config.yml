@@ -1,4 +1,5 @@
 port: 8080
+sslPort: 8443
 
 # No password required to add/delete if public
 public: false
