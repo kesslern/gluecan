@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.3.40"
     application
+    distribution
 }
 
 application {
@@ -45,4 +46,13 @@ dependencies {
     implementation("commons-lang:commons-lang:2.6")
     implementation("com.amihaiemil.web:eo-yaml:2.0.1")
     runtime(project(":gluecan-frontend"))
+}
+
+
+distributions {
+    main {
+        contents {
+            from("./gluecan-config.yml")
+        }
+    }
 }
