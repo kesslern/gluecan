@@ -11,6 +11,7 @@ object Config {
     val keystorePath: String?
     val keystorePassword: String?
     val port: Int
+    val sslPort: Int
 
 
     init {
@@ -22,6 +23,7 @@ object Config {
         this.adminPass = yamlMapping.string("adminPass")
         this.database = "jdbc:sqlite:${yamlMapping.string("database")}"
         this.port = yamlMapping.string("port")!!.toInt()
+        this.sslPort = yamlMapping.string("sslPort")!!.toInt()
         this.public = yamlMapping.string("public")!!.toBoolean()
 
         val keystore = yamlMapping.yamlMapping("keystore")

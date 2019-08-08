@@ -23,12 +23,12 @@ fun JavalinConfig.gluecanConfig() {
         val sslConnector = if (Config.keystorePath != null) {
             log.info("Enabling SSL")
             val sslConnector = ServerConnector(server, getSslContextFactory())
-            sslConnector.setPort(8443)
+            sslConnector.port = Config.sslPort
             sslConnector
         } else null
 
         val connector = ServerConnector(server)
-        connector.port = 8080
+        connector.port = Config.port
 
         if (sslConnector != null) {
             server.connectors = arrayOf(sslConnector, connector)

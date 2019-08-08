@@ -11,6 +11,7 @@ A pastebin designed for personal self-hosting.
 ## Running
 
 Download a release from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`.
+this.port = yamlMapping.string("port")!!.toInt()
 
 ## Configuration
 
@@ -23,6 +24,7 @@ GlueCan's pastes are always publicly viewable, but creation and deletion of past
 | Configuration Key | Description                                                                                                                  |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | port              | The port to listen on.                                                                                                       |
+| sslPort           | The port to listen on for SSL, if used.                                                                                      |
 | public            | If true, the admin interface and ability to create/delete pastes is password protected. Pastes are always publicly viewable. |
 | admin_pass        | The password if running in private mode. Unused in public mode.                                                              |
 | database          | Database path/filename to use.                                                                                               |
