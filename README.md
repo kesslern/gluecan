@@ -2,13 +2,21 @@
 
 A pastebin designed for personal self-hosting.
 
-## Build & Run Prerequisites
-
-- Java >= 8
-
 ## Running
 
-Download a release from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`.
+### Download a Release
+
+Download a release from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`. Requires Java >= 8.
+
+### Docker
+
+Docker images are published at [kesslern/gluecan](https://cloud.docker.com/repository/docker/kesslern/gluecan). To use the docker image:
+
+- Make your copy of `gluecan-config.yml` available on a volume
+- Set the environment variable `GLUECAN_CONFIG_PATH` to the full path of the configuration file
+- In the configuration file, be sure the database path points to an external volume. If not, the database will be erased when the docker updates.
+
+For example: `docker run -v /directory/with/config/file/:/config -e GLUECAN_CONFIG_PATH=/config/gluecan-config.yml -p 8080:8080 kesslern/gluecan:latest`
 
 ## Configuration
 
@@ -16,19 +24,21 @@ Download a release from [here](https://github.com/kesslern/gluecan/releases). Af
 
 GlueCan's pastes are always publicly viewable, but creation and deletion of pastes can be restricted. In private mode, an administration password is required to access the administration UI, delete pastes, or create new pastes.
 
+### Configuration Location
+
+By default, `gluecan-config.yml` is loaded from the current working directory. If the environment variable `GLUECAN_CONFIG_PATH` is defined, that value is used instead.
+
 ### gluecan-config.yml
 
-| Configuration Key | Description                                                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| port              | The port to listen on.                                                                                                       |
-| sslPort           | The port to listen on for SSL, if used.                                                                                      |
-| public            | If true, the admin interface and ability to create/delete pastes is password protected. Pastes are always publicly viewable. |
-| admin_pass        | The password if running in private mode. Unused in public mode.                                                              |
-| database          | Database path/filename to use.                                                                                               |
-| keystore.path     | If defined, GlueCan will use the provided keystore to create a secure SSL connection.                                        |
-| keystroe.path     | The keystore password to use.                                                                                                |
-
-GlueCan will always read `gluecan-config.yml` from the current working directory.
+| Configuration Key | Description                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| port              | The port to listen on.                                                                |
+| sslPort           | The port to listen on for SSL, if used.                                               |
+| public            | If true, GlueCan is public and anyone can create or delete pastes.                    |
+| admin_pass        | THE password if running in private mode. Unused in public mode.                       |
+| database          | Database path/filename to use.                                                        |
+| keystore.path     | If defined, GlueCan will use the provided keystore to create a secure SSL connection. |
+| keystroe.path     | The keystore password to use.                                                         |
 
 ## Development
 
