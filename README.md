@@ -40,6 +40,10 @@ By default, `gluecan-config.yml` is loaded from the current working directory. I
 | keystore.path     | If defined, GlueCan will use the provided keystore to create a secure SSL connection. |
 | keystore.password | The keystore password to use.                                                         |
 
+## SSL Warning
+
+GlueCan uses clipboard APIs which are only available when runnig in a sceure context (HTTPS or localhost). Outside of a secure context, some GlueCan functionality will not work, and there is currently no graceful fallback.
+
 ## Development
 
 ### Prerequisites
