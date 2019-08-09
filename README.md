@@ -2,16 +2,13 @@
 
 A pastebin designed for personal self-hosting.
 
-## Prerequisites
+## Build & Run Prerequisites
 
-- NodeJS >= 8.10
 - Java >= 8
-- Yarn (latest recommended)
 
 ## Running
 
 Download a release from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`.
-this.port = yamlMapping.string("port")!!.toInt()
 
 ## Configuration
 
@@ -34,6 +31,12 @@ GlueCan's pastes are always publicly viewable, but creation and deletion of past
 GlueCan will always read `gluecan-config.yml` from the current working directory.
 
 ## Development
+
+### Prerequisites
+
+- JDK 8+
+- Node 10+
+- Yarn (latest version)
 
 ### Run Locally
 

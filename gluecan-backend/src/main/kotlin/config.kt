@@ -15,8 +15,10 @@ object Config {
 
 
     init {
+        val configPath = System.getenv("GLUECAN_CONFIG_PATH") ?: "gluecan-config.yml"
+
         val yamlMapping = Yaml
-            .createYamlInput(File("gluecan-config.yml"))
+            .createYamlInput(File(configPath))
             .readYamlMapping()
 
 
