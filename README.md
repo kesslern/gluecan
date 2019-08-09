@@ -38,7 +38,7 @@ By default, `gluecan-config.yml` is loaded from the current working directory. I
 | admin_pass        | THE password if running in private mode. Unused in public mode.                       |
 | database          | Database path/filename to use.                                                        |
 | keystore.path     | If defined, GlueCan will use the provided keystore to create a secure SSL connection. |
-| keystroe.path     | The keystore password to use.                                                         |
+| keystore.password | The keystore password to use.                                                         |
 
 ## Development
 
