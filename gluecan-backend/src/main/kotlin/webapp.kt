@@ -37,12 +37,18 @@ fun viewRaw(ctx: Context) {
 
 fun Javalin.gluecan() {
     this.get("/api/pastes", { ctx ->
-        val result = transaction {
-            PasteDBO.all().map { it.toData() }
-        }.map { it.copy(text = null) }
+        val result = connection.createStatement().executeQuery("select Pastes.date, Pastes.views, Pastes.language, Pastes.id from Pastes")
 
-        ctx.json(result)
+        val pastes = mutableListOf<Paste>()
+        while (result.next()) {
+            val id = result.getInt("id")
+            val date = result.getString("date")
+            val views = result.getInt("views")
+            val language = result.getString("language")
+            pastes += Paste(id, views, language, null, date)
+        }
 
+        ctx.json(pastes)
     }, roles(MyRole.AUTHENTICATED))
 
     this.get("/api/pastes/:id/raw", ::viewRaw)
@@ -94,4 +100,20 @@ fun Javalin.gluecan() {
         }
         ctx.result(id.toString())
     }, roles(MyRole.AUTHENTICATED))
+
+    this.get("/api/testing") { ctx ->
+        val result = connection.createStatement().executeQuery("select PasteContent.text, Pastes.date, Pastes.views, Pastes.language, Pastes.id from Pastes inner join PasteContent on Pastes.text_id = PasteContent.rowid")
+
+        val pastes = mutableListOf<Paste>()
+        while (result.next()) {
+            val id = result.getInt("id")
+            val text = result.getString("text")
+            val date = result.getString("date")
+            val views = result.getInt("views")
+            val language = result.getString("language")
+            pastes += Paste(id, views, language, text, date)
+        }
+
+        ctx.json(pastes)
+    }
 }

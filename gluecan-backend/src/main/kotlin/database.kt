@@ -8,14 +8,18 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.LocalDateTime
 import java.sql.Connection
+import java.sql.DriverManager
 import kotlin.random.Random
 
+var connection: Connection = DriverManager.getConnection(Config.database)
+
 fun initDatabase() {
-    val flyway = Flyway.configure().dataSource(Config.database, "su", null).load()
+    val flyway = Flyway.configure().dataSource(Config.database, "su", null).locations("us.kesslern.migrations", "db.migration").load()
     flyway.migrate()
     Database.connect(Config.database, driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
