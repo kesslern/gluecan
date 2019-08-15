@@ -3,9 +3,6 @@ package us.kesslern
 import io.javalin.Javalin
 import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.http.Context
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object Templater {
     fun template(paste: Paste): String {
@@ -21,17 +18,18 @@ object Templater {
 }
 
 fun viewRaw(ctx: Context) {
-    val paste = transaction {
-        val id = ctx.pathParam(":id").toInt()
-        PasteDBO.findById(id)
-    }
+    val id = ctx.pathParam(":id").toInt()
+    val stmt = connection.prepareStatement("select PasteContent.text from Pastes inner join PasteContent on Pastes.text_id = PasteContent.rowid where Pastes.id = ?")
+    stmt.setInt(1, id)
 
-    if (paste == null) {
+    val result = stmt.executeQuery()
+
+    if (result.next()) {
+        ctx.contentType("text/plain")
+        ctx.result(result.getString("text"))
+    } else {
         ctx.result("Not found")
         ctx.status(410)
-    } else {
-        ctx.contentType("text/plain")
-        ctx.result(paste.text)
     }
 }
 
@@ -56,64 +54,60 @@ fun Javalin.gluecan() {
 
 
     this.get("/view/:id") { ctx ->
-        val paste = transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
-            paste?.let {
-                it.views++
-                it
-            }
-        }
+        val id = ctx.pathParam(":id").toInt()
 
-        if (paste == null) {
-            ctx.result("Not found")
-            ctx.status(410)
-        } else {
-            ctx.contentType("text/html")
-            ctx.result(Templater.template(paste.toData()))
-        }
-    }
+        val updateStatement = connection.prepareStatement("update Pastes set views = views + 1 where id = ?")
+        updateStatement.setInt(1, id)
+        updateStatement.execute()
 
-    this.delete("/api/pastes/:id", { ctx ->
-        transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
+        val retrieveStatement = connection.prepareStatement("select PasteContent.text, Pastes.date, Pastes.views, Pastes.language from Pastes inner join PasteContent on Pastes.text_id = PasteContent.rowid where Pastes.id = ?")
+        retrieveStatement.setInt(1, id)
+        val result = retrieveStatement.executeQuery()
 
-            if (paste != null) {
-                paste.delete()
-                ctx.status(200)
-            } else {
-                ctx.status(410)
-            }
-        }
-    }, roles(MyRole.AUTHENTICATED))
-
-    this.post("/api/pastes", { ctx ->
-        var id = 0
-        transaction {
-            id = uniqueId()
-            PastesTable.insert {
-                it[PastesTable.id] = EntityID(id, PastesTable)
-                it[language] = ctx.queryParam("lang")
-                it[text] = ctx.body()
-            }[PastesTable.id]
-        }
-        ctx.result(id.toString())
-    }, roles(MyRole.AUTHENTICATED))
-
-    this.get("/api/testing") { ctx ->
-        val result = connection.createStatement().executeQuery("select PasteContent.text, Pastes.date, Pastes.views, Pastes.language, Pastes.id from Pastes inner join PasteContent on Pastes.text_id = PasteContent.rowid")
-
-        val pastes = mutableListOf<Paste>()
-        while (result.next()) {
-            val id = result.getInt("id")
+        if (result.next()) {
             val text = result.getString("text")
             val date = result.getString("date")
             val views = result.getInt("views")
             val language = result.getString("language")
-            pastes += Paste(id, views, language, text, date)
+            ctx.contentType("text/html")
+            ctx.result(Templater.template(Paste(id, views, language, text, date)))
+        } else {
+            ctx.result("Not found")
+            ctx.status(410)
         }
-
-        ctx.json(pastes)
     }
+
+    this.delete("/api/pastes/:id", { ctx ->
+        val id = ctx.pathParam(":id").toInt()
+
+        val stmt = connection.prepareStatement("delete from PasteContent where rowid=(select text_id from Pastes where id=?)")
+        stmt.setInt(1, id)
+        val result = stmt.executeUpdate()
+
+        if (result > 0) {
+            val stmt2 = connection.prepareStatement("delete from Pastes where id=?")
+            stmt2.setInt(1, id)
+            stmt2.executeUpdate()
+            ctx.status(200)
+        } else {
+            ctx.status(410)
+        }
+    }, roles(MyRole.AUTHENTICATED))
+
+    this.post("/api/pastes", { ctx ->
+        val id =  uniqueId()
+        val text = ctx.body()
+        val language = ctx.queryParam("lang")
+
+        var stmt = connection.prepareStatement("insert into PasteContent(text) values (?)")
+        stmt.setString(1, text)
+        stmt.executeUpdate()
+
+        stmt = connection.prepareStatement("insert into Pastes(id, text_id, language) values(?, last_insert_rowid(), ?)")
+        stmt.setInt(1, id)
+        stmt.setString(2, language)
+        stmt.executeUpdate()
+
+        ctx.result(id.toString())
+    }, roles(MyRole.AUTHENTICATED))
 }

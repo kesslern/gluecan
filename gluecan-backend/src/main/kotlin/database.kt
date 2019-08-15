@@ -1,17 +1,7 @@
 package us.kesslern
 
-import io.javalin.http.Context
 import org.apache.commons.lang.StringEscapeUtils
 import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.LocalDateTime
 import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.random.Random
@@ -21,25 +11,25 @@ var connection: Connection = DriverManager.getConnection(Config.database)
 fun initDatabase() {
     val flyway = Flyway.configure().dataSource(Config.database, "su", null).locations("us.kesslern.migrations", "db.migration").load()
     flyway.migrate()
-    Database.connect(Config.database, driver = "org.sqlite.JDBC")
-    TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
 }
 
 fun Paste.toHtml(): String = StringEscapeUtils.escapeHtml(this.text)
 
 fun uniqueId(): Int {
     var id = randomId()
-    while (PasteDBO.findById(id) !== null) {
+    val stmt = connection.prepareStatement("select id from Pastes where id = ?")
+    stmt.setInt(1, id);
+    var result = stmt.executeQuery()
+
+    while (result.next()) {
         id = randomId()
+        stmt.setInt(1, id);
+        result = stmt.executeQuery()
     }
     return id
 }
 
 fun randomId(): Int = Random.nextInt(0, 1000)
-
-fun Context.dboToJson(it: DBOToData<*>) = this.json(it.toData()!!)
-
-fun Context.dboToJson(it: Iterable<DBOToData<*>>) = this.json(it.map { it.toData() })
 
 data class Paste(
     val id: Int,
@@ -48,33 +38,3 @@ data class Paste(
     val text: String?,
     val date: String
 )
-
-object PastesTable : IntIdTable() {
-    val views = integer("views")
-    val language = text("language").nullable()
-    val text = text("text")
-    val date = datetime("date")
-}
-
-interface DBOToData<T> {
-    fun toData(): T
-}
-
-class PasteDBO(id: EntityID<Int>) : IntEntity(id), DBOToData<Paste> {
-    companion object : IntEntityClass<PasteDBO>(PastesTable)
-
-    var views by PastesTable.views
-    var language by PastesTable.language
-    var text by PastesTable.text
-    var date by PastesTable.date
-
-    override fun toData() = transaction {
-        Paste(
-            this@PasteDBO.id.value,
-            this@PasteDBO.views,
-            this@PasteDBO.language,
-            this@PasteDBO.text,
-            this@PasteDBO.date.toLocalDateTime().toString() + "+0000"
-        )
-    }
-}

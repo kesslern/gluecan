@@ -18,10 +18,11 @@ class V21__FullTextSearch : BaseJavaMigration() {
                 foreign key(text_id) references PasteContent(rowid)
             )
         """.trimIndent())
-        val result = connection.createStatement().executeQuery("select text, views, language, date from OldPastes")
+        val result = connection.createStatement().executeQuery("select id, text, views, language, date from OldPastes")
         var index = 0
         while (result.next()) {
             index++
+            val id = result.getInt("id")
             val text = result.getString("text")
             val language = result.getString("language")
             val views = result.getInt("views")
@@ -32,11 +33,12 @@ class V21__FullTextSearch : BaseJavaMigration() {
             stmt.setString(2, text)
             stmt.executeUpdate()
 
-            stmt = connection.prepareStatement("insert into Pastes (views, language, text_id, date) values (?, ?, ?, ?)")
-            stmt.setInt(1, views)
-            stmt.setString(2, language)
-            stmt.setInt(3, index)
-            stmt.setString(4, date)
+            stmt = connection.prepareStatement("insert into Pastes (id, views, language, text_id, date) values (?, ?, ?, ?, ?)")
+            stmt.setInt(1, id)
+            stmt.setInt(2, views)
+            stmt.setString(3, language)
+            stmt.setInt(4, index)
+            stmt.setString(5, date)
             stmt.executeUpdate()
         }
 
