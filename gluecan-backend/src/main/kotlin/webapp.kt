@@ -40,6 +40,16 @@ fun Javalin.gluecan() {
     this.get("/api/pastes/:id/raw", ::viewRaw)
     this.get("/view/:id/raw", ::viewRaw)
 
+    this.get("/api/search") { ctx ->
+        val query = ctx.queryParam("query")
+
+        if (query !== null) {
+            ctx.json(searchPastes(query))
+        } else {
+            ctx.result("Expected query parameter")
+            ctx.status(400)
+        }
+    }
 
     this.get("/view/:id") { ctx ->
         val id = ctx.pathParam(":id").toInt()

@@ -104,6 +104,18 @@ fun updateViewCount(id: Int) {
     updateStatement.execute()
 }
 
+fun searchPastes(query: String): List<Int> {
+    val stmt = connection.prepareStatement("select Pastes.id from Pastes inner join PasteContent(?) on PasteContent.rowId = Pastes.text_id;")
+    stmt.setString(1, query)
+    val result = stmt.executeQuery()
+
+    val results = mutableListOf<Int>()
+    while (result.next()) {
+        results += result.getInt("id")
+    }
+    return results
+}
+
 data class Paste(
     val id: Int,
     val views: Int?,
