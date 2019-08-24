@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { makeStyles, fade } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
@@ -6,8 +6,9 @@ import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useAuthentication } from '../state/slices/auth'
+import { setSearch } from '../state/slices/search'
 import ArrowBack from '@material-ui/icons/ArrowBackIos'
 import { useDrawer } from '../state/slices/drawer'
 import InputBase from '@material-ui/core/InputBase'
@@ -117,9 +118,12 @@ function getIndex(location) {
 function Navbar() {
   const { open: show, toggleOpen: toggle, display } = useDrawer()
   const authenticated = useAuthentication()
+  const dispatch = useDispatch()
   const location = useSelector(state => state.router.location)
   const [hoverIndex, setHoverIndex] = useState(0)
   const [hoverActive, setHoverActive] = useState(false)
+  const [query, setQuery] = useState('')
+
   const idx = getIndex(location.pathname)
   const classes = useStyles({
     idx,
@@ -129,13 +133,32 @@ function Navbar() {
     drawerVisible: display,
   })
 
-  const handleHover = value => () => {
-    if (value !== true && value !== false) {
-      setHoverIndex(value)
-    } else {
-      setHoverActive(value)
-    }
-  }
+  const handleHover = useCallback(
+    value => () => {
+      if (value !== true && value !== false) {
+        setHoverIndex(value)
+      } else {
+        setHoverActive(value)
+      }
+    },
+    [setHoverActive, setHoverIndex]
+  )
+
+  const handleSearchChange = useCallback(
+    event => {
+      setQuery(event.target.value)
+    },
+    [setQuery]
+  )
+
+  const handleSearchKeyPress = useCallback(
+    event => {
+      if (event.key === 'Enter') {
+        dispatch(setSearch({ query, id: null }))
+      }
+    },
+    [dispatch, query]
+  )
 
   return (
     <AppBar position="static">
@@ -156,12 +179,15 @@ function Navbar() {
                 <SearchIcon />
               </div>
               <InputBase
+                value={query}
                 placeholder="Search…"
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
                 }}
                 inputProps={{ 'aria-label': 'search' }}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
               />
             </div>
             <div

@@ -27,6 +27,7 @@ export default function PasteList({ selected }) {
   const classes = useStyles({ drawerOpen })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
+  const search = useSelector(state => state.search)
 
   const handleView = useCallback(
     id => () => {
@@ -41,8 +42,9 @@ export default function PasteList({ selected }) {
   }, [ref])
 
   return (
-    <>
-      <List className={classes.root}>
+    <div className={classes.root}>
+      {search.query && <div>Showing pastes matching "{search.query}"</div>}
+      <List>
         {pastes.map(paste => (
           <PasteListItem
             ref={paste.id === selected ? ref : null}
@@ -64,7 +66,7 @@ export default function PasteList({ selected }) {
         onClose={toggleSnackbar}
         message="Copied shareable link to clipboard."
       />
-    </>
+    </div>
   )
 }
 
