@@ -7,10 +7,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { push } from 'connected-react-router'
 import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
+import Paper from '@material-ui/core/Paper'
 import PasteListItem from './PasteListItem'
 import { useDrawer } from '../../state/slices/drawer'
 import { clearSearch } from '../../state/slices/search'
 import CloseIcon from '@material-ui/icons/Close'
+import { getPastes } from '../../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,12 +34,12 @@ function CurrentSearch() {
   }, [dispatch])
 
   return search.query ? (
-    <div>
+    <Paper>
       Showing pastes matching "{search.query}"{' '}
       <IconButton onClick={handleSearchClear}>
         <CloseIcon />
       </IconButton>
-    </div>
+    </Paper>
   ) : null
 }
 
@@ -47,7 +49,7 @@ export default function PasteList({ selected }) {
   const [showSnackbar, toggleSnackbar] = useToggle(false)
   const classes = useStyles({ drawerOpen })
   const dispatch = useDispatch()
-  const pastes = useSelector(state => state.pastes)
+  const pastes = useSelector(getPastes)
 
   const handleView = useCallback(
     id => () => {

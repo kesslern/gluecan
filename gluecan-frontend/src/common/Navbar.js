@@ -13,6 +13,7 @@ import ArrowBack from '@material-ui/icons/ArrowBackIos'
 import { useDrawer } from '../state/slices/drawer'
 import InputBase from '@material-ui/core/InputBase'
 import SearchIcon from '@material-ui/icons/Search'
+import { searchPastes } from '../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
@@ -154,7 +155,7 @@ function Navbar() {
   const handleSearchKeyPress = useCallback(
     event => {
       if (event.key === 'Enter') {
-        dispatch(setSearch({ query, id: null }))
+        dispatch(searchPastes(query))
         setQuery('')
       }
     },

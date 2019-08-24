@@ -1,6 +1,7 @@
 import { createSlice } from 'redux-starter-kit'
 import { push, replace } from 'connected-react-router'
 import { batchActions } from 'redux-batched-actions'
+import { setSearch } from './search'
 
 const pastes = createSlice({
   slice: 'pastes',
@@ -61,6 +62,22 @@ export function submitPaste({ text, language }) {
           ])
         )
       })
+  }
+}
+
+export function searchPastes(query) {
+  return async (dispatch, getState) => {
+    fetch(`/api/search?query=${encodeURIComponent(query)}`)
+      .then(it => it.json())
+      .then(ids => dispatch(setSearch({ query, ids })))
+  }
+}
+
+export function getPastes(state) {
+  if (state.search.ids) {
+    return state.pastes.filter(paste => state.search.ids.includes(paste.id))
+  } else {
+    return state.pastes
   }
 }
 
