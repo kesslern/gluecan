@@ -27,9 +27,9 @@ const useStyles = makeStyles(theme => ({
   },
   backIcon: {
     color: 'white',
-    marginRight: 'auto',
+    marginRight: ({ drawerOpen }) => theme.spacing(drawerOpen ? 0 : 20),
     marginLeft: ({ drawerOpen }) => theme.spacing(drawerOpen ? 20 : 0),
-    transitionProperty: 'margin-left, transform, opacity',
+    transitionProperty: 'margin-left, margin-right, transform, opacity',
     transition: '.3s linear',
     transform: ({ drawerOpen }) => `rotate(${drawerOpen ? 0 : -180}deg)`,
     opacity: ({ drawerVisible }) => (drawerVisible ? 1 : 0),
@@ -70,12 +70,8 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
-    marginRight: theme.spacing(4),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto',
-    },
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
   searchIcon: {
     width: theme.spacing(7),
