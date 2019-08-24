@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import List from '@material-ui/core/List'
 import makeStyles from '@material-ui/styles/makeStyles'
+import IconButton from '@material-ui/core/IconButton'
 import useToggle from 'react-use-toggle'
 import { useDispatch, useSelector } from 'react-redux'
 import { push } from 'connected-react-router'
@@ -8,6 +9,8 @@ import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
 import PasteListItem from './PasteListItem'
 import { useDrawer } from '../../state/slices/drawer'
+import { clearSearch } from '../../state/slices/search'
+import CloseIcon from '@material-ui/icons/Close'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -20,6 +23,24 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
+function CurrentSearch() {
+  const dispatch = useDispatch()
+  const search = useSelector(state => state.search)
+
+  const handleSearchClear = useCallback(() => {
+    dispatch(clearSearch())
+  }, [dispatch])
+
+  return search.query ? (
+    <div>
+      Showing pastes matching "{search.query}"{' '}
+      <IconButton onClick={handleSearchClear}>
+        <CloseIcon />
+      </IconButton>
+    </div>
+  ) : null
+}
+
 export default function PasteList({ selected }) {
   const ref = useRef(null)
   const { open: drawerOpen } = useDrawer()
@@ -27,7 +48,6 @@ export default function PasteList({ selected }) {
   const classes = useStyles({ drawerOpen })
   const dispatch = useDispatch()
   const pastes = useSelector(state => state.pastes)
-  const search = useSelector(state => state.search)
 
   const handleView = useCallback(
     id => () => {
@@ -43,7 +63,7 @@ export default function PasteList({ selected }) {
 
   return (
     <div className={classes.root}>
-      {search.query && <div>Showing pastes matching "{search.query}"</div>}
+      <CurrentSearch />
       <List>
         {pastes.map(paste => (
           <PasteListItem

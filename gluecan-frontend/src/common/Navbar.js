@@ -155,9 +155,10 @@ function Navbar() {
     event => {
       if (event.key === 'Enter') {
         dispatch(setSearch({ query, id: null }))
+        setQuery('')
       }
     },
-    [dispatch, query]
+    [dispatch, query, setQuery]
   )
 
   return (
