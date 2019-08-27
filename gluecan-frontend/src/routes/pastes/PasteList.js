@@ -9,6 +9,7 @@ import PropTypes from 'prop-types'
 import Snackbar from '@material-ui/core/Snackbar'
 import Paper from '@material-ui/core/Paper'
 import PasteListItem from './PasteListItem'
+import Typography from '@material-ui/core/Typography'
 import { useDrawer } from '../../state/slices/drawer'
 import { clearSearch } from '../../state/slices/search'
 import CloseIcon from '@material-ui/icons/Close'
@@ -25,7 +26,16 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
+const useSearchStyles = makeStyles(theme => ({
+  root: {
+    margin: theme.spacing(2),
+    padding: theme.spacing(1, 0, 1, 2),
+    display: 'flex',
+  },
+}))
+
 function CurrentSearch() {
+  const classes = useSearchStyles()
   const dispatch = useDispatch()
   const search = useSelector(state => state.search)
 
@@ -34,8 +44,8 @@ function CurrentSearch() {
   }, [dispatch])
 
   return search.query ? (
-    <Paper>
-      Showing pastes matching "{search.query}"{' '}
+    <Paper className={classes.root}>
+      <Typography>Showing pastes matching "{search.query}" </Typography>
       <IconButton onClick={handleSearchClear}>
         <CloseIcon />
       </IconButton>
