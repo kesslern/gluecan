@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import List from '@material-ui/core/List'
+import Snackbar from '@material-ui/core/Snackbar'
 import makeStyles from '@material-ui/styles/makeStyles'
-import IconButton from '@material-ui/core/IconButton'
-import useToggle from 'react-use-toggle'
-import { useDispatch, useSelector } from 'react-redux'
 import { push } from 'connected-react-router'
 import PropTypes from 'prop-types'
-import Snackbar from '@material-ui/core/Snackbar'
-import Paper from '@material-ui/core/Paper'
+import { useDispatch, useSelector } from 'react-redux'
+import useToggle from 'react-use-toggle'
+import { useDrawer } from '../../../state/slices/drawer'
+import { getPastes } from '../../../state/slices/pastes'
+import CurrentSearch from './CurrentSearch'
 import PasteListItem from './PasteListItem'
-import Typography from '@material-ui/core/Typography'
-import { useDrawer } from '../../state/slices/drawer'
-import { clearSearch } from '../../state/slices/search'
-import CloseIcon from '@material-ui/icons/Close'
-import { getPastes } from '../../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,43 +22,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const useSearchStyles = makeStyles(theme => ({
-  root: {
-    margin: theme.spacing(-1, 1, 0),
-    padding: theme.spacing(1, 0, 1, 2),
-    display: 'flex',
-    alignItems: 'center',
-    '*&>:last-child': {
-      marginLeft: 'auto',
-    },
-  },
-}))
-
-function CurrentSearch() {
-  const classes = useSearchStyles()
-  const dispatch = useDispatch()
-  const search = useSelector(state => state.search)
-
-  const handleSearchClear = useCallback(() => {
-    dispatch(clearSearch())
-  }, [dispatch])
-
-  const results = search.ids && search.ids.length
-  const word = results === 1 ? 'paste' : 'pastes'
-
-  return search.query ? (
-    <Paper className={classes.root}>
-      <Typography>
-        {results} {word} matching "{search.query}"{' '}
-      </Typography>
-      <IconButton onClick={handleSearchClear}>
-        <CloseIcon />
-      </IconButton>
-    </Paper>
-  ) : null
-}
-
-export default function PasteList({ selected }) {
+function PasteList({ selected }) {
   const ref = useRef(null)
   const { open: drawerOpen } = useDrawer()
   const [showSnackbar, toggleSnackbar] = useToggle(false)
@@ -114,3 +74,5 @@ export default function PasteList({ selected }) {
 PasteList.propTypes = {
   selected: PropTypes.number,
 }
+
+export default PasteList

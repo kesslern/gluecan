@@ -101,7 +101,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function IntegrationAutosuggest({ onSelect }) {
+export default function LanguagePicker({ onSelect }) {
   const classes = useStyles()
   const [state, setState] = React.useState('')
   const [stateSuggestions, setSuggestions] = React.useState([])

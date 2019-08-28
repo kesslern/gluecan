@@ -3,8 +3,8 @@ import { Route } from 'react-router-dom'
 import { CSSTransition } from 'react-transition-group'
 import { useAuthentication } from '../state/slices/auth'
 
-import LoginForm from './login/LoginForm'
-import New from './new/New'
+import LoginPage from './login/LoginPage'
+import New from './new/NewPage'
 import Pastes from './pastes/Pastes'
 
 const validRoutes = [/^\/login$/, /^\/pastes(\/\d+)?$/, /^\/new$/]
@@ -13,7 +13,7 @@ const isValidRoute = pathname =>
 
 function Routes() {
   const authenticated = useAuthentication()
-  const routes = [{ key: 'login', path: '/login', Component: LoginForm }]
+  const routes = [{ key: 'login', path: '/login', Component: LoginPage }]
 
   if (authenticated) {
     routes.push({ path: '/pastes/:id?', Component: Pastes })

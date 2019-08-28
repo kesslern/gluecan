@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
-import PasteList from './PasteList'
+import PasteList from './list/PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector } from 'react-redux'
 import PasteView from './PasteView'
