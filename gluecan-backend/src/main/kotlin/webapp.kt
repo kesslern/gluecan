@@ -3,9 +3,9 @@ package us.kesslern
 import io.javalin.Javalin
 import io.javalin.core.security.SecurityUtil.roles
 import io.javalin.http.Context
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.apache.commons.lang.StringEscapeUtils
+
+fun Paste.toHtml(): String = StringEscapeUtils.escapeHtml(this.text)
 
 object Templater {
     fun template(paste: Paste): String {
@@ -16,82 +16,70 @@ object Templater {
             .replace("{{class}}", paste.language ?: "")
             .replace("{{date}}", paste.date)
             .replace("{{pasteHtml}}", paste.toHtml())
-
     }
 }
 
 fun viewRaw(ctx: Context) {
-    val paste = transaction {
-        val id = ctx.pathParam(":id").toInt()
-        PasteDBO.findById(id)
-    }
+    val id = ctx.pathParam(":id").toInt()
+    val text = getPasteText(id)
 
-    if (paste == null) {
+    if (text !== null) {
+        ctx.contentType("text/plain")
+        ctx.result(text)
+    } else {
         ctx.result("Not found")
         ctx.status(410)
-    } else {
-        ctx.contentType("text/plain")
-        ctx.result(paste.text)
     }
 }
 
 fun Javalin.gluecan() {
     this.get("/api/pastes", { ctx ->
-        val result = transaction {
-            PasteDBO.all().map { it.toData() }
-        }.map { it.copy(text = null) }
-
-        ctx.json(result)
-
+        ctx.json(getAllPastes())
     }, roles(MyRole.AUTHENTICATED))
 
     this.get("/api/pastes/:id/raw", ::viewRaw)
     this.get("/view/:id/raw", ::viewRaw)
 
+    this.get("/api/search") { ctx ->
+        val query = ctx.queryParam("query")
+
+        if (query !== null) {
+            ctx.json(searchPastes(query))
+        } else {
+            ctx.result("Expected query parameter")
+            ctx.status(400)
+        }
+    }
 
     this.get("/view/:id") { ctx ->
-        val paste = transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
-            paste?.let {
-                it.views++
-                it
-            }
-        }
+        val id = ctx.pathParam(":id").toInt()
 
-        if (paste == null) {
+        updateViewCount(id)
+        val paste = getPaste(id)
+
+        if (paste !== null) {
+            ctx.contentType("text/html")
+            ctx.result(Templater.template(paste))
+        } else {
             ctx.result("Not found")
             ctx.status(410)
-        } else {
-            ctx.contentType("text/html")
-            ctx.result(Templater.template(paste.toData()))
         }
     }
 
     this.delete("/api/pastes/:id", { ctx ->
-        transaction {
-            val id = ctx.pathParam(":id").toInt()
-            val paste = PasteDBO.findById(id)
+        val id = ctx.pathParam(":id").toInt()
 
-            if (paste != null) {
-                paste.delete()
-                ctx.status(200)
-            } else {
-                ctx.status(410)
-            }
+        if (deletePaste(id)) {
+            ctx.status(200)
+        } else {
+            ctx.status(410)
         }
     }, roles(MyRole.AUTHENTICATED))
 
     this.post("/api/pastes", { ctx ->
-        var id = 0
-        transaction {
-            id = uniqueId()
-            PastesTable.insert {
-                it[PastesTable.id] = EntityID(id, PastesTable)
-                it[language] = ctx.queryParam("lang")
-                it[text] = ctx.body()
-            }[PastesTable.id]
-        }
-        ctx.result(id.toString())
+        val text = ctx.body()
+        val language = ctx.queryParam("lang")
+
+        ctx.result(createPaste(text, language).toString())
     }, roles(MyRole.AUTHENTICATED))
 }

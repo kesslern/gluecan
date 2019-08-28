@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles, fade } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Typography from '@material-ui/core/Typography'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useAuthentication } from '../state/slices/auth'
 import ArrowBack from '@material-ui/icons/ArrowBackIos'
 import { useDrawer } from '../state/slices/drawer'
+import InputBase from '@material-ui/core/InputBase'
+import SearchIcon from '@material-ui/icons/Search'
+import { searchPastes } from '../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
@@ -25,15 +28,15 @@ const useStyles = makeStyles(theme => ({
   },
   backIcon: {
     color: 'white',
-    marginRight: 'auto',
+    marginRight: ({ drawerOpen }) => theme.spacing(drawerOpen ? 0 : 20),
     marginLeft: ({ drawerOpen }) => theme.spacing(drawerOpen ? 20 : 0),
-    transitionProperty: 'margin-left, transform, opacity',
+    transitionProperty: 'margin-left, margin-right, transform, opacity',
     transition: '.3s linear',
     transform: ({ drawerOpen }) => `rotate(${drawerOpen ? 0 : -180}deg)`,
     opacity: ({ drawerVisible }) => (drawerVisible ? 1 : 0),
   },
   toolBar: {
-    '& >:nth-child(3):before': {
+    '& >:nth-child(4):before': {
       zIndex: 2,
       visibility: ({ idx }) => (idx ? 'visible' : 'none'),
       content: '""',
@@ -45,7 +48,7 @@ const useStyles = makeStyles(theme => ({
       borderBottom: '3px solid white',
       transition: 'left .1s linear',
     },
-    '& >:nth-child(3):after': {
+    '& >:nth-child(4):after': {
       zIndex: 1,
       visibility: ({ hoverActive }) => (hoverActive ? 'visible' : 'none'),
       content: '""',
@@ -59,6 +62,39 @@ const useStyles = makeStyles(theme => ({
           ? '3px solid rgba(255,255,255,.7)'
           : '0px solid rgba(255,255,255,.7)',
       transition: 'left .1s linear, border-bottom .2s ease-in-out',
+    },
+  },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginRight: 'auto',
+    marginLeft: 'auto',
+  },
+  searchIcon: {
+    width: theme.spacing(7),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 7),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 120,
+      '&:focus': {
+        width: 200,
+      },
     },
   },
 }))
@@ -82,9 +118,12 @@ function getIndex(location) {
 function Navbar() {
   const { open: show, toggleOpen: toggle, display } = useDrawer()
   const authenticated = useAuthentication()
+  const dispatch = useDispatch()
   const location = useSelector(state => state.router.location)
   const [hoverIndex, setHoverIndex] = useState(0)
   const [hoverActive, setHoverActive] = useState(false)
+  const [query, setQuery] = useState('')
+
   const idx = getIndex(location.pathname)
   const classes = useStyles({
     idx,
@@ -94,13 +133,33 @@ function Navbar() {
     drawerVisible: display,
   })
 
-  const handleHover = value => () => {
-    if (value !== true && value !== false) {
-      setHoverIndex(value)
-    } else {
-      setHoverActive(value)
-    }
-  }
+  const handleHover = useCallback(
+    value => () => {
+      if (value !== true && value !== false) {
+        setHoverIndex(value)
+      } else {
+        setHoverActive(value)
+      }
+    },
+    [setHoverActive, setHoverIndex]
+  )
+
+  const handleSearchChange = useCallback(
+    event => {
+      setQuery(event.target.value)
+    },
+    [setQuery]
+  )
+
+  const handleSearchKeyPress = useCallback(
+    event => {
+      if (event.key === 'Enter') {
+        dispatch(searchPastes(query))
+        setQuery('')
+      }
+    },
+    [dispatch, query, setQuery]
+  )
 
   return (
     <AppBar position="static">
@@ -115,26 +174,44 @@ function Navbar() {
         </IconButton>
 
         {authenticated && (
-          <div
-            className={classes.buttonContainer}
-            onMouseLeave={handleHover(false)}
-            onMouseEnter={handleHover(true)}
-          >
-            <Button
-              component={LinkToPastes}
-              onMouseEnter={handleHover(0)}
-              color="inherit"
+          <>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <SearchIcon />
+              </div>
+              <InputBase
+                value={query}
+                placeholder="Search…"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+              />
+            </div>
+            <div
+              className={classes.buttonContainer}
+              onMouseLeave={handleHover(false)}
+              onMouseEnter={handleHover(true)}
             >
-              Pastes
-            </Button>
-            <Button
-              component={LinkToNew}
-              onMouseEnter={handleHover(1)}
-              color="inherit"
-            >
-              New
-            </Button>
-          </div>
+              <Button
+                component={LinkToPastes}
+                onMouseEnter={handleHover(0)}
+                color="inherit"
+              >
+                Pastes
+              </Button>
+              <Button
+                component={LinkToNew}
+                onMouseEnter={handleHover(1)}
+                color="inherit"
+              >
+                New
+              </Button>
+            </div>
+          </>
         )}
       </Toolbar>
     </AppBar>

@@ -1,3 +1,4 @@
+import { hot } from 'react-hot-loader/root'
 import React, { useEffect } from 'react'
 import './App.css'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -55,4 +56,4 @@ function App() {
   )
 }
 
-export default App
+export default hot(App)
