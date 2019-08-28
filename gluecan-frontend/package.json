@@ -46,7 +46,8 @@
     ]
   },
   "resolutions": {
-    "lodash.template": ">=4.5.0"
+    "lodash.template": ">=4.5.0",
+    "eslint-utils": ">=1.4.1"
   },
   "devDependencies": {
     "http-proxy-middleware": "^0.19.1",
