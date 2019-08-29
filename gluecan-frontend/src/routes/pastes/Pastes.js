@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useReducer } from 'react'
 import PasteList from './list/PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector } from 'react-redux'
@@ -31,133 +31,90 @@ function usePrevious(value) {
   return ref.current
 }
 
+const select = id => ({ type: 'select', payload: { id } })
+const loaded = () => ({ type: 'loaded' })
+const reload = () => ({ type: 'reload' })
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'select':
+      const { id } = action.payload
+      return [
+        { id: state[0].active ? state[0].id : id, active: !state[0].active },
+        { id: state[1].active ? state[1].id : id, active: state[0].active },
+      ]
+    case 'loaded': {
+      return [
+        { id: state[0].active ? state[0].id : null, active: state[0].active },
+        { id: state[1].active ? state[1].id : null, active: state[1].active },
+      ]
+    }
+    case 'reload': {
+      return [
+        {
+          id: state[0].active ? state[0].id : state[1].id,
+          active: !state[0].active,
+        },
+        {
+          id: state[0].active ? state[0].id : state[1].id,
+          active: state[0].active,
+        },
+      ]
+    }
+
+    default:
+      throw new Error()
+  }
+}
+
 export default function Pastes({ match }) {
+  const classes = useStyles()
   const routeId = parseInt(match && match.params.id) || null
   const previousRouteId = usePrevious(routeId)
-
-  const classes = useStyles()
+  const [[one, two], dispatch] = useReducer(reducer, [
+    { id: null, active: false },
+    { id: null, active: false },
+  ])
 
   const locationKey = useSelector(state => state.router.location.key)
   const previousLocationKey = usePrevious(locationKey)
 
   const pastes = useSelector(state => state.pastes)
 
-  const [one, setOne] = useState({ id: null, active: false, loaded: false })
-  const [two, setTwo] = useState({ id: null, active: false, loaded: false })
-
-  /* This should probably be refactored to use useReducer */
   useEffect(() => {
-    if (routeId !== null && !previousRouteId && !one.active) {
-      // First selection
-      setOne({
-        id: routeId,
-        active: true,
-        loaded: false,
-      })
-    } else if (one.active && one.id !== routeId) {
-      // New selection while one is active
-      setOne({
-        ...one,
-        active: false,
-      })
-      setTwo({
-        id: routeId,
-        active: true,
-        loaded: false,
-      })
-    } else if (two.active && two.id !== routeId) {
-      // New selection while two is active
-      setOne({
-        id: routeId,
-        active: true,
-        loaded: false,
-      })
-      setTwo({
-        ...two,
-        active: false,
-      })
-    } else if ((one.active || two.active) && !routeId) {
-      // Active was deleted
-      setOne({
-        id: null,
-        active: false,
-        loaded: false,
-      })
-      setTwo({
-        id: null,
-        active: false,
-        loaded: false,
-      })
-    } else if (one.loaded && one.active && two.loaded) {
-      // Paste one is loaded, unload paste two
-      setTwo({
-        id: null,
-        active: false,
-        loaded: false,
-      })
-    } else if (two.loaded && two.active && one.loaded) {
-      // Paste two is loaded, unload paste one
-      setOne({
-        id: null,
-        active: false,
-        loaded: false,
-      })
+    if (routeId !== previousRouteId) {
+      dispatch(select(routeId))
     } else if (
-      one.active &&
-      one.id === routeId &&
+      (one.id === routeId || two.id === routeId) &&
       locationKey !== previousLocationKey
     ) {
-      // Re-load the same paste in the other tab
-      setOne({
-        ...one,
-        active: false,
-      })
-      setTwo({
-        id: routeId,
-        active: true,
-        loaded: false,
-      })
-    } else if (
-      two.active &&
-      two.id === routeId &&
-      locationKey !== previousLocationKey
-    ) {
-      // Re-load the same paste in the other tab
-      setOne({
-        id: routeId,
-        active: true,
-        loaded: false,
-      })
-      setTwo({
-        ...two,
-        active: false,
-      })
+      dispatch(reload())
     }
-  }, [routeId, locationKey, previousLocationKey, previousRouteId, one, two])
+  }, [
+    dispatch,
+    locationKey,
+    one.id,
+    one.loaded,
+    previousLocationKey,
+    previousRouteId,
+    routeId,
+    two.id,
+    two.loaded,
+  ])
 
-  const handleOneLoaded = useCallback(() => {
-    setOne({
-      ...one,
-      loaded: true,
-    })
-  }, [one])
-
-  const handleTwoLoaded = useCallback(() => {
-    setTwo({
-      ...two,
-      loaded: true,
-    })
-  }, [two])
+  const handleLoad = useCallback(() => {
+    dispatch(loaded())
+  }, [])
 
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
       <section className={classes.iframeContainer}>
         {one.id && (
-          <PasteView active={one.active} id={one.id} onLoad={handleOneLoaded} />
+          <PasteView active={one.active} id={one.id} onLoad={handleLoad} />
         )}
         {two.id && (
-          <PasteView active={two.active} id={two.id} onLoad={handleTwoLoaded} />
+          <PasteView active={two.active} id={two.id} onLoad={handleLoad} />
         )}
       </section>
     </div>
