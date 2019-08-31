@@ -6,8 +6,8 @@ import { viewedPaste } from '../../state/slices/pastes'
 
 const useStyles = makeStyles(theme => ({
   iframe: {
-    zIndex: ({ active }) => (active ? 1 : -1),
-    opacity: ({ active }) => (active ? 1 : 0),
+    zIndex: ({ loaded }) => (loaded ? 1 : -1),
+    opacity: ({ loaded }) => (loaded ? 1 : 0),
     border: 'none',
     height: '100%',
     width: '100%',
@@ -15,15 +15,18 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-function PasteView({ id, active, onLoad }) {
+function PasteView({ id, onLoad }) {
   const dispatch = useDispatch()
   const [loaded, setLoaded] = useState(false)
-  const classes = useStyles({ active: loaded && active })
+
+  const classes = useStyles({ loaded })
 
   function handleLoad() {
-    onLoad()
     dispatch(viewedPaste(parseInt(id)))
     setLoaded(true)
+    setTimeout(() => {
+      onLoad()
+    }, 250)
   }
 
   useEffect(() => setLoaded(false), [id])
@@ -40,7 +43,7 @@ function PasteView({ id, active, onLoad }) {
 
 PasteView.propTypes = {
   id: PropTypes.number.isRequired,
-  active: PropTypes.bool,
+  onLoad: PropTypes.func.isRequired,
 }
 
 export default PasteView

@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
-import PasteList from './PasteList'
+import React, { useEffect, useRef, useCallback, useReducer } from 'react'
+import PasteList from './list/PasteList'
 import makeStyles from '@material-ui/styles/makeStyles'
 import { useSelector } from 'react-redux'
 import PasteView from './PasteView'
-import { useAuthentication } from '../../state/slices/auth'
 
 const useStyles = makeStyles(theme => ({
   pasteContainer: {
@@ -22,14 +21,6 @@ const useStyles = makeStyles(theme => ({
       position: 'absolute',
     },
   },
-  iframe: {
-    zIndex: ({ active }) => (active ? 1 : -1),
-    opacity: ({ active }) => (active ? 1 : 0),
-    border: 'none',
-    height: '100%',
-    width: '100%',
-    transition: 'opacity 250ms ease-in',
-  },
 }))
 
 function usePrevious(value) {
@@ -40,119 +31,90 @@ function usePrevious(value) {
   return ref.current
 }
 
-export default function Pastes({ match }) {
-  const routeId = parseInt(match && match.params.id) || null
+const select = id => ({ type: 'select', payload: { id } })
+const loaded = () => ({ type: 'loaded' })
+const reload = () => ({ type: 'reload' })
 
-  const authenticated = useAuthentication()
-  const classes = useStyles()
-
-  const locationKey = useSelector(state => state.router.location.key)
-  const pastes = useSelector(state => state.pastes)
-
-  const [state, setState] = useState({ one: null, two: null, active: null })
-  const [oneLoaded, setOneLoaded] = useState(false)
-  const [twoLoaded, setTwoLoaded] = useState(false)
-
-  const previousLocationKey = usePrevious(locationKey)
-
-  /* This should probably be refactored to use useReducer */
-  useEffect(() => {
-    const { one, two, active } = state
-    const notActive = active === 'one' ? 'two' : 'one'
-    if (active === null && routeId) {
-      // First selection
-      setState({
-        one: routeId,
-        two: null,
-        active: 'one',
-      })
-    } else if (active === 'one' && routeId !== one) {
-      // New selection while one is active
-      setState({
-        one,
-        two: routeId,
-        active: 'two',
-      })
-    } else if (active === 'two' && routeId !== two) {
-      // New selection while two is active
-      setState({
-        one: routeId,
-        two,
-        active: 'one',
-      })
-    } else if (active && !routeId) {
-      // Active was deleted
-      setState({
-        one: null,
-        two: null,
-        active: null,
-      })
-    } else if (oneLoaded === true && active === 'one' && two !== null) {
-      // Paste one is loaded, unload paste two
-      setState({
-        one,
-        two: null,
-        active,
-      })
-    } else if (twoLoaded === true && active === 'two' && one !== null) {
-      // Paste two is loaded, unload paste one
-      setState({
-        one: null,
-        two,
-        active,
-      })
-    } else if (
-      state[active] === routeId &&
-      locationKey !== previousLocationKey
-    ) {
-      // Re-load the same paste in the other tab
-      setState({
-        [active]: state[active],
-        [notActive]: routeId,
-        active: notActive,
-      })
+function reducer(state, action) {
+  switch (action.type) {
+    case 'select':
+      const { id } = action.payload
+      return [
+        { id: state[0].active ? state[0].id : id, active: !state[0].active },
+        { id: state[1].active ? state[1].id : id, active: state[0].active },
+      ]
+    case 'loaded': {
+      return [
+        { id: state[0].active ? state[0].id : null, active: state[0].active },
+        { id: state[1].active ? state[1].id : null, active: state[1].active },
+      ]
     }
-  }, [
-    setState,
-    routeId,
-    state,
-    locationKey,
-    oneLoaded,
-    twoLoaded,
-    previousLocationKey,
+    case 'reload': {
+      return [
+        {
+          id: state[0].active ? state[0].id : state[1].id,
+          active: !state[0].active,
+        },
+        {
+          id: state[0].active ? state[0].id : state[1].id,
+          active: state[0].active,
+        },
+      ]
+    }
+
+    default:
+      throw new Error()
+  }
+}
+
+export default function Pastes({ match }) {
+  const classes = useStyles()
+  const routeId = parseInt(match && match.params.id) || null
+  const previousRouteId = usePrevious(routeId)
+  const [[one, two], dispatch] = useReducer(reducer, [
+    { id: null, active: false },
+    { id: null, active: false },
   ])
 
-  const handleOneLoaded = useCallback(() => {
-    setOneLoaded(true)
-    setTwoLoaded(false)
-  }, [setOneLoaded, setTwoLoaded])
+  const locationKey = useSelector(state => state.router.location.key)
+  const previousLocationKey = usePrevious(locationKey)
 
-  const handleTwoLoaded = useCallback(() => {
-    setOneLoaded(false)
-    setTwoLoaded(true)
-  }, [setOneLoaded, setTwoLoaded])
+  const pastes = useSelector(state => state.pastes)
+
+  useEffect(() => {
+    if (routeId !== previousRouteId) {
+      dispatch(select(routeId))
+    } else if (
+      (one.id === routeId || two.id === routeId) &&
+      locationKey !== previousLocationKey
+    ) {
+      dispatch(reload())
+    }
+  }, [
+    dispatch,
+    locationKey,
+    one.id,
+    one.loaded,
+    previousLocationKey,
+    previousRouteId,
+    routeId,
+    two.id,
+    two.loaded,
+  ])
+
+  const handleLoad = useCallback(() => {
+    dispatch(loaded())
+  }, [])
 
   return Array.isArray(pastes) && pastes.length > 0 ? (
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
       <section className={classes.iframeContainer}>
-        {state.one && (
-          <PasteView
-            active={state.active === 'one'}
-            id={state.one}
-            onLoad={handleOneLoaded}
-          />
-        )}
-        {state.two && (
-          <PasteView
-            active={state.active === 'two'}
-            id={state.two}
-            onLoad={handleTwoLoaded}
-          />
-        )}
+        {one.id && <PasteView id={one.id} onLoad={handleLoad} />}
+        {two.id && <PasteView id={two.id} onLoad={handleLoad} />}
       </section>
     </div>
   ) : (
-    authenticated && <h2>There are no pastes.</h2>
+    <h2>There are no pastes.</h2>
   )
 }

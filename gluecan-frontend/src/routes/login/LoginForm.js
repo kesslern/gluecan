@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography'
 import { login } from '../../state/slices/auth'
 import { useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/styles'
-import { Redirect } from 'react-router-dom'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -34,7 +33,7 @@ export default function LoginForm() {
   const classes = useStyles()
   const dispatch = useDispatch()
 
-  const { failure, authenticated } = useSelector(state => state.auth)
+  const { failure } = useSelector(state => state.auth)
   const [password, setPassword] = useState('')
 
   const updatePassword = useCallback(
@@ -52,42 +51,31 @@ export default function LoginForm() {
     [dispatch, password]
   )
 
-  if (authenticated === true) {
-    return <Redirect to="/pastes" />
-  }
-
-  if (authenticated === false)
-    return (
-      <div className={classes.container}>
-        <Typography
-          variant="h5"
-          color="textSecondary"
-          className={classes.heading}
-        >
-          GlueCan Administration
-        </Typography>
-        <Paper
-          component="form"
-          className={classes.form}
-          onSubmit={handleSubmit}
-        >
-          <TextField
-            id="password"
-            label="Password"
-            margin="normal"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={updatePassword}
-            error={failure}
-            helperText={failure && 'Login Failed'}
-          />
-          <Button variant="contained" color="primary" type="submit">
-            Go
-          </Button>
-        </Paper>
-      </div>
-    )
-
-  return null
+  return (
+    <div className={classes.container}>
+      <Typography
+        variant="h5"
+        color="textSecondary"
+        className={classes.heading}
+      >
+        GlueCan Administration
+      </Typography>
+      <Paper component="form" className={classes.form} onSubmit={handleSubmit}>
+        <TextField
+          id="password"
+          label="Password"
+          margin="normal"
+          variant="outlined"
+          type="password"
+          value={password}
+          onChange={updatePassword}
+          error={failure}
+          helperText={failure && 'Login Failed'}
+        />
+        <Button variant="contained" color="primary" type="submit">
+          Go
+        </Button>
+      </Paper>
+    </div>
+  )
 }
