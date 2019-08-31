@@ -110,12 +110,8 @@ export default function Pastes({ match }) {
     <div className={classes.pasteContainer}>
       <PasteList selected={routeId} />
       <section className={classes.iframeContainer}>
-        {one.id && (
-          <PasteView active={one.active} id={one.id} onLoad={handleLoad} />
-        )}
-        {two.id && (
-          <PasteView active={two.active} id={two.id} onLoad={handleLoad} />
-        )}
+        {one.id && <PasteView id={one.id} onLoad={handleLoad} />}
+        {two.id && <PasteView id={two.id} onLoad={handleLoad} />}
       </section>
     </div>
   ) : (
