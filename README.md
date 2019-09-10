@@ -30,7 +30,7 @@ By default, `gluecan-config.yml` is loaded from the current working directory. I
 
 ### gluecan-config.yml
 
-There is an [example](../blob/master/gluecan-backend/gluecan-config.yml) in the repository.
+There is an [example](../master/gluecan-backend/gluecan-config.yml) in the repository.
 
 | Configuration Key | Description                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------- |
