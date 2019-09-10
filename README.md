@@ -1,12 +1,12 @@
 # GlueCan
 
-A pastebin designed for personal self-hosting.
+A pastebin designed for easy self-hosting and personal use.
 
 ## Running
 
-### Download a Release
+### Binary Release
 
-Download a release from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`. Requires Java >= 8.
+Download a Linux binary from [here](https://github.com/kesslern/gluecan/releases). After extraction, configure `gluecan-config.yml` and run `bin/gluecan`. Requires Java >= 8.
 
 ### Docker
 
@@ -18,7 +18,7 @@ Docker images are published at [kesslern/gluecan](https://cloud.docker.com/repos
 
 For example: `docker run -v /directory/with/config/file/:/config -e GLUECAN_CONFIG_PATH=/config/gluecan-config.yml -p 8080:8080 kesslern/gluecan:latest`
 
-## Configuration
+## Gluecan Configuration
 
 ### Public Mode
 
@@ -29,6 +29,8 @@ GlueCan's pastes are always publicly viewable, but creation and deletion of past
 By default, `gluecan-config.yml` is loaded from the current working directory. If the environment variable `GLUECAN_CONFIG_PATH` is defined, that value is used instead.
 
 ### gluecan-config.yml
+
+There is an [example](../blob/master/gluecan-backend/gluecan-config.yml) in the repository.
 
 | Configuration Key | Description                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------- |
@@ -42,7 +44,7 @@ By default, `gluecan-config.yml` is loaded from the current working directory. I
 
 ## SSL Warning
 
-GlueCan uses clipboard APIs which are only available when runnig in a sceure context (HTTPS or localhost). Outside of a secure context, some GlueCan functionality will not work, and there is currently no graceful fallback.
+GlueCan uses clipboard APIs which are only available when runnig in a sceure context (HTTPS or localhost). Outside of a secure context, some GlueCan functionality will not work, and there is no graceful fallback.
 
 ## Development
 
@@ -54,11 +56,11 @@ GlueCan uses clipboard APIs which are only available when runnig in a sceure con
 
 ### Run Locally
 
-Invoke the `run` task with gradle wrapper to download dependencies and start GlueCan with `./gradlew run`. The configuration file at `gluecan-backend/gluecan-config.yml` will be used.
+Start the server with `./gradlew run`. The configuration file at `gluecan-backend/gluecan-config.yml` will be used.
 
 ### Frontend Development
 
-The `run` task will create a production build from `gluecan-frontend` and serve the files from the classpath. For frontend development, the yarn development server should be used.
+`./gradlew run` will create a production build from `gluecan-frontend` and serve the files from the classpath. For frontend development, the yarn development server should be used for better debugging, error reporting, and hot module reloading.
 
 Inside `gluecan-frontend`, run `yarn start` to start the development server at `localhost:3000`. API requests will be proxied to the backend at `localhost:8080`.
 
