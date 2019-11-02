@@ -32,6 +32,7 @@ tasks {
     }
 }
 
-tasks["jsBuild"].dependsOn("yarn_install")
+tasks["yarn_build"].dependsOn("yarn_install")
+tasks["jsBuild"].dependsOn("yarn_build")
 tasks["jar"].dependsOn("jsBuild")
 tasks["build"].dependsOn("jar")

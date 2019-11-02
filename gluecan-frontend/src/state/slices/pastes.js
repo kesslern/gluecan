@@ -4,7 +4,7 @@ import { batchActions } from 'redux-batched-actions'
 import { setSearch } from './search'
 
 const pastes = createSlice({
-  slice: 'pastes',
+  name: 'pastes',
   initialState: null,
   reducers: {
     add: (state, action) => {

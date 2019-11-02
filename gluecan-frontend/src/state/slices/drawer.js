@@ -3,7 +3,7 @@ import { LOCATION_CHANGE } from 'connected-react-router'
 import { useSelector, useDispatch } from 'react-redux'
 
 const drawer = createSlice({
-  slice: 'drawer',
+  name: 'drawer',
   initialState: {
     display: false,
     open: true,

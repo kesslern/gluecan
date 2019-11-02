@@ -4,7 +4,7 @@ import { setPastes } from './pastes'
 import { useSelector } from 'react-redux'
 
 const auth = createSlice({
-  slice: 'auth',
+  name: 'auth',
   initialState: {
     authenticated: null,
     failure: false,
