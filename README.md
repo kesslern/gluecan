@@ -18,11 +18,15 @@ Docker images are published at [kesslern/gluecan](https://cloud.docker.com/repos
 
 For example: `docker run -v /directory/with/config/file/:/config -e GLUECAN_CONFIG_PATH=/config/gluecan-config.yml -p 8080:8080 kesslern/gluecan:latest`
 
+### From Source
+
+To build a production-ready distributable, run `./gradlew distZip`. A distributable will be at `gluecan-backend/build/distributions/gluecan.zip`. Extract and run the appropriate script from the `bin` folder. Requires Java >= 8.
+
 ## Gluecan Configuration
 
-### Public Mode
+### Public and Private Mode
 
-GlueCan's pastes are always publicly viewable, but creation and deletion of pastes can be restricted. In private mode, an administration password is required to access the administration UI, delete pastes, or create new pastes.
+GlueCan's pastes are always publicly viewable, but creation and deletion of pastes can be restricted by enabling private mode. When private mode is enabled, a password is required to access the administration UI and delete or create new pastes.
 
 ### Configuration Location
 
@@ -42,9 +46,9 @@ There is an [example](../master/gluecan-backend/gluecan-config.yml) in the repos
 | keystore.path     | If defined, GlueCan will use the provided keystore to create a secure SSL connection. |
 | keystore.password | The keystore password to use.                                                         |
 
-## SSL Warning
+## SSL Requirement Warning
 
-GlueCan uses clipboard APIs which are only available when runnig in a sceure context (HTTPS or localhost). Outside of a secure context, some GlueCan functionality will not work, and there is no graceful fallback.
+GlueCan uses clipboard APIs which are only available when running in a sceure context (HTTPS or localhost). Outside of a secure context, some GlueCan functionality will not work, and there is no graceful fallback.
 
 ## Development
 
@@ -54,15 +58,19 @@ GlueCan uses clipboard APIs which are only available when runnig in a sceure con
 - Node 10+
 - Yarn (latest version)
 
-### Run Locally
+### Backend development
 
-Start the server with `./gradlew run`. The configuration file at `gluecan-backend/gluecan-config.yml` will be used.
+The backend can be started with `./gradlew run`. The configuration file at `gluecan-backend/gluecan-config.yml` will be used. Frontend resources will be included, but not updated unless the backend is restarted.
 
 ### Frontend Development
 
-`./gradlew run` will create a production build from `gluecan-frontend` and serve the files from the classpath. For frontend development, the yarn development server should be used for better debugging, error reporting, and hot module reloading.
+`./gradlew run` will create a production build from `gluecan-frontend` and serve the files from the classpath. The backend will have to be restarted for UI changes to take effect. For faster frontend development, the yarn development server should be used to provide better debugging, error reporting, and hot module reloading.
 
-Inside `gluecan-frontend`, run `yarn start` to start the development server at `localhost:3000`. API requests will be proxied to the backend at `localhost:8080`.
+Change the working directory `gluecan-frontend` and run `yarn start` to start the development server at `localhost:3000`. API requests will be proxied to the backend service at `localhost:8080`. When running the development server, changes made the UI will be reflected immediately, without requiring the backend service to restart.
+
+### Producing a release
+
+Production releases are produced using the Gradle [Application Plugin](https://docs.gradle.org/current/userguide/application_plugin.html). Running `./gradlew distZip` will run `yarn build` in the frontend module to produce production-ready frontend resources and bundle them in the classpath when producing the backend module. The entire application will be bundled into `gluecan-backend/build/distributions/gluecan.zip` and can be ran from the included shell and batch scripts.
 
 ## Built With
 
